@@ -1,0 +1,23 @@
+#Exclude extensions
+*.db
+*.filters
+*.user
+*.orig
+*.suo
+*.opendb
+*.iobj
+*.ipdb
+*.pdb
+*.config
+*.htm
+*.exe
+*.tlog
+*.idb
+*.ilk
+
+
+#Exclude folders
+
+./bin
+.vs
+/resman/obj
