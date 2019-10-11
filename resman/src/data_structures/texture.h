@@ -2,10 +2,11 @@
 #pragma once
 
 #include "pch.h"
+#include "resource.h"
 
 class FilePath;
 
-class Texture
+class Texture : public Resource
 {
 public:
   /**
