@@ -3,15 +3,15 @@
 
 #include "pch.h"
 
-class FilePath
+class file_path
 {
 public:
   /**
   * @brief  Creates a filepath from string
   * @param  the path
   */
-  FilePath(const str_t & path);
-  FilePath(const char * path);
+  file_path(const str_t & path);
+  file_path(const char * path);
   /**
   * @brief  Returns the full path
   * @return the full path

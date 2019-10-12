@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "utils/filepath.h"
 
-FilePath::FilePath(const str_t & path)
+file_path::file_path(const str_t & path)
   : m_fullpath(path)
 {
   //Normalize the path
@@ -31,26 +31,26 @@ FilePath::FilePath(const str_t & path)
 
 }
 
-FilePath::FilePath(const char * path)
-  : FilePath(str_t(path))
+file_path::file_path(const char * path)
+  : file_path(str_t(path))
 {}
 
-const str_t & FilePath::get_fullpath() const
+const str_t & file_path::get_fullpath() const
 {
   return m_fullpath;
 }
 
-const str_t & FilePath::get_extension() const
+const str_t & file_path::get_extension() const
 {
   return m_extension;
 }
 
-const str_t & FilePath::get_name() const
+const str_t & file_path::get_name() const
 {
   return m_name;
 }
 
-const str_t FilePath::get_full_name() const
+const str_t file_path::get_full_name() const
 {
   return m_name + m_extension;
 }

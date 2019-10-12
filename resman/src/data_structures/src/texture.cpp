@@ -5,7 +5,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
-bool Texture::load(const FilePath & path)
+bool texture::load(const file_path & path)
 {
   //Flip Y for opengl
   stbi_set_flip_vertically_on_load(true);

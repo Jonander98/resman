@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-GTEST_API_ int main(int argc, char** argv)
+GTEST_API_ i32 main(i32 argc, char** argv)
 {
 
   // GTest

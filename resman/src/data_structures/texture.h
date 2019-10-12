@@ -2,11 +2,11 @@
 #pragma once
 
 #include "pch.h"
-#include "resource.h"
+#include "main/resource.h"
 
-class FilePath;
+class file_path;
 
-class Texture : public Resource
+class texture : public resource
 {
 public:
   /**
@@ -14,5 +14,5 @@ public:
   * @param The path of the texture
   * @return True if the load was successfull
   */
-  bool load(const FilePath & path);
+  bool load(const file_path & path);
 };
