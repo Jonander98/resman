@@ -1,5 +1,7 @@
-// resman.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+/**
+ * @author  Jon Ander Jimenez
+ * @contact  jonander.jimenez@gmail.com
+ */
 
 #include "pch.h"
 #include "gtest/gtest.h"

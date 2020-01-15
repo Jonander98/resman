@@ -1,6 +1,6 @@
 
 #include "pch.h"
-#include "data_structures/texture.h"
+#include "usage/texture.h"
 #include "utils/filepath.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"

@@ -1,4 +1,7 @@
-
+/**
+ * @author  Jon Ander Jimenez
+ * @contact  jonander.jimenez@gmail.com
+ */
 #pragma once
 
 #include "pch.h"

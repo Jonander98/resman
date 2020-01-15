@@ -1,0 +1,5 @@
+-Create unique id for each resource. It will be an unsigned integer, but the compute_id function can be overriden by the parent class.
+-Create an storage for the resources and how to organize them
+-Memory allocator for the resources
+-Load resources asyncronously
+-Fix a maximum number of threads and distribute the work load
