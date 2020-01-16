@@ -5,24 +5,38 @@
 
 #include "pch.h"
 #include "gtest/gtest.h"
-#include <iostream>
+#include "main/resman.h"
+#include "usage/texture.h"
 
 GTEST_API_ i32 main(i32 argc, char** argv)
 {
-
   // GTest
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
-  //std::cout << "Hello World!\n"; 
 }
 
-TEST(geometry, in_plane_point)
+TEST(resman, resource_registration)
 {
-  ASSERT_TRUE(1 == 1);
-
-  EXPECT_EQ(1, 2);
-  
+  resman rm;
+  rm.register_resource<texture>();
+  ASSERT_TRUE(rm.is_registered<texture>());
 }
+
+TEST(resman, resource_request_no_load)
+{
+  resman rm;
+  rm.register_resource<texture>();
+  resource_ptr<texture> t_ptr = rm.get<texture>("test.png");
+  ASSERT_TRUE(!t_ptr.is_valid());
+}
+//TEST(resman, resource_request_load)
+//{
+//  resman rm;
+//  rm.register_resource<texture>();
+//  rm.load<texture>("test.png");
+//  resource_ptr<texture> t_ptr = rm.get<texture>("test.png");
+//  ASSERT_TRUE(t_ptr.is_valid());
+//}
 //Examples
 #if 0
 

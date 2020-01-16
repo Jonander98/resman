@@ -54,3 +54,9 @@ inline void resman::register_resource()
   register_resource<resource_type2, args>();
 
 }
+template<typename resource_type>
+inline bool resman::is_registered()
+{
+  size_t id = typeid(resource_type).hash_code();
+  return m_resources.find(id) != m_resources.end();
+}
