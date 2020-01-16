@@ -175,6 +175,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\usage\model.h" />
     <ClInclude Include="src\usage\object.h" />
     <ClInclude Include="src\usage\texture.h" />
     <ClInclude Include="src\main\resman.h" />
@@ -184,6 +185,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main\src\resman.cpp" />
+    <ClCompile Include="src\usage\src\model.cpp" />
     <ClCompile Include="src\usage\src\object.cpp" />
     <ClCompile Include="src\usage\src\texture.cpp" />
     <ClCompile Include="src\main\src\resource.cpp" />

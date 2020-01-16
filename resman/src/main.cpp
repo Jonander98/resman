@@ -7,6 +7,7 @@
 #include "gtest/gtest.h"
 #include "main/resman.h"
 #include "usage/texture.h"
+#include "usage/model.h"
 
 GTEST_API_ i32 main(i32 argc, char** argv)
 {
@@ -20,6 +21,11 @@ TEST(resman, resource_registration)
   resman rm;
   rm.register_resource<texture>();
   ASSERT_TRUE(rm.is_registered<texture>());
+
+  resman rm2;
+  rm2.register_resource<texture, model>();
+  ASSERT_TRUE(rm2.is_registered<texture>());
+  ASSERT_TRUE(rm2.is_registered<model>());
 }
 
 TEST(resman, resource_request_no_load)
@@ -28,15 +34,16 @@ TEST(resman, resource_request_no_load)
   rm.register_resource<texture>();
   resource_ptr<texture> t_ptr = rm.get<texture>("test.png");
   ASSERT_TRUE(!t_ptr.is_valid());
+
 }
-//TEST(resman, resource_request_load)
-//{
-//  resman rm;
-//  rm.register_resource<texture>();
-//  rm.load<texture>("test.png");
-//  resource_ptr<texture> t_ptr = rm.get<texture>("test.png");
-//  ASSERT_TRUE(t_ptr.is_valid());
-//}
+TEST(resman, resource_request_load)
+{
+  resman rm;
+  rm.register_resource<texture>();
+  rm.load<texture>("./assets/test.png");
+  resource_ptr<texture> t_ptr = rm.get<texture>("test.png");
+  ASSERT_TRUE(t_ptr.is_valid());
+}
 //Examples
 #if 0
 

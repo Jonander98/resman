@@ -24,6 +24,12 @@ public:
   */
   template <typename resource_type>
   resource_ptr<resource_type> get(const str_t &);
+  /*
+  *
+  */
+  template <typename resource_type>
+  void load(const file_path &);
+
 public:
   //Registers a resource type
   template <typename resource_type>
@@ -33,6 +39,9 @@ public:
   void register_resource();
   template <typename resource_type>
   bool is_registered();
+private:
+  template <typename resource_type>
+  resource_container<resource_type> * get_resource_container();
 private:
 
   //A map from type id to the corresponding resource container

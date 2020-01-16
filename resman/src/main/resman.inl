@@ -1,3 +1,6 @@
+#include "resman.h"
+#include "resman.h"
+#include "resman.h"
 
 /**
  * @author  Jon Ander Jimenez
@@ -34,6 +37,14 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
 }
 
 template<typename resource_type>
+inline void resman::load(const file_path & fp)
+{
+  static_assert(std::is_base_of<resource, resource_type>::value,
+    "Every resource must derive from the resource class");
+  //m_resources
+}
+
+template<typename resource_type>
 inline void resman::register_resource()
 {
   static_assert(std::is_base_of<resource, resource_type>::value,
@@ -51,12 +62,22 @@ template <typename resource_type, typename resource_type2, typename ...args>
 inline void resman::register_resource()
 {
   register_resource<resource_type>();
-  register_resource<resource_type2, args>();
+  register_resource<resource_type2, args...>();
 
 }
 template<typename resource_type>
 inline bool resman::is_registered()
 {
+  static_assert(std::is_base_of<resource, resource_type>::value,
+    "Every resource must derive from the resource class");
+  return get_resource_container<resource_type>() != nullptr;
+}
+
+template<typename resource_type>
+inline resman::resource_container<resource_type>* resman::get_resource_container()
+{
   size_t id = typeid(resource_type).hash_code();
-  return m_resources.find(id) != m_resources.end();
+  auto it = m_resources.find(id);
+  return (it == m_resources.end()) ? nullptr : reinterpret_cast<resource_container<resource_type>*>(it->second);
+
 }
