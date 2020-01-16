@@ -9,5 +9,7 @@
 void object::foo()
 {
   resman r;
-  m_tex = r.get("mario.png");
+  //r.load();
+  m_tex = r.get<texture>("mario.png");
+  m_tex->get_id();
 }

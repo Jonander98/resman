@@ -8,29 +8,42 @@
 #include "utils/filepath.h"
 
 /*
+Hash function used to compute the id
+It can be specialized for a concrete resource
+*/
+template <typename resource_type>
+struct resource_hash : public std::hash<str_t> {};
+/*
 Usage
 Derive + implement load
 */
 class resource
 {
+private://types
   friend class resman;
+  using id_type = size_t;
+public://Static interface
+  template <typename resource_type>
+  static id_type compute_id(const str_t &);
 protected:
   virtual ~resource() = default;
-  resource() = default;
-public:
+  resource(id_type id);
   resource(const resource &) = delete;
   resource & operator=(const resource &) = delete;
-
+public:
+  //True if the resource has been loaded
   bool is_loaded()const;
+  //The id of the resource
+  id_type get_id()const;
 protected:
 
-
-  //Can only be implemented. Not called
+  //Override with the load of the resource
   virtual bool load(const file_path&) = 0;
 private:
   void internal_load(const file_path&);
 private:
   bool m_is_loaded{ false };  //If the resource is loaded or not
+  id_type m_id;
 };
 
 
@@ -38,13 +51,19 @@ private:
 template <typename resource_type>
 class resource_ptr
 {
+  static_assert(std::is_base_of<resource, resource_type>::value,
+    "Every resource must derive from the resource class");
+
   friend class resman;
 public:
   resource_ptr() = default;
   resource_ptr(const resource_ptr &);
+  //Returns the raw pointer
   resource_type * get();
+  //Applies the arrow operator on the raw pointer
   resource_type * operator->()const;
   resource_ptr & operator=(const resource_ptr & rhs);
+  //Allows using the resource_ptr as a raw pointer
   operator resource_type *();
 public:
   //returns true if the pointer is valid
@@ -55,40 +74,4 @@ private:
   resource_type * m_ptr{nullptr};
 };
 
-template<typename resource_type>
-inline resource_ptr<resource_type>::resource_ptr(const resource_ptr & rhs)
-  : m_ptr(rhs.m_ptr)
-{}
-
-
-template<typename resource_type>
-inline resource_type * resource_ptr<resource_type>::get()
-{
-  return m_ptr;
-}
-
-template<typename resource_type>
-inline resource_type * resource_ptr<resource_type>::operator->() const
-{
-  return m_ptr;
-}
-
-template<typename resource_type>
-inline resource_ptr<resource_type> & resource_ptr<resource_type>::operator=(const resource_ptr & rhs)
-{
-  m_ptr = rhs.m_ptr;
-  return *this;
-}
-
-template<typename resource_type>
-inline resource_ptr<resource_type>::operator resource_type*()
-{
-  return m_ptr;
-}
-
-template<typename resource_type>
-inline bool resource_ptr<resource_type>::is_valid()
-{
-  return m_ptr != nullptr;
-}
-
+#include "resource.inl"

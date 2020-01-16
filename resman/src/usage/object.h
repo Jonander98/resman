@@ -12,4 +12,5 @@ class object
   void foo();
 private:
   resource_ptr<texture> m_tex;
+
 };
