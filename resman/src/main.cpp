@@ -35,8 +35,11 @@ TEST(resman, resource_request_no_load)
   resource_ptr<texture> t_ptr = rm.get<texture>("test.png");
   ASSERT_TRUE(!t_ptr.is_valid());
 
+  //texture t;
+  //ASSERT_TRUE(typeid(t) == typeid(*reinterpret_cast<resource*>(&t)));
+
 }
-TEST(resman, resource_request_load)
+TEST(resman, resource_request_load_syncronous)
 {
   resman rm;
   rm.register_resource<texture>();

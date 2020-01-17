@@ -6,8 +6,8 @@
 #include "main/resource.h"
 
 
-resource::resource(id_type id)
- : m_id(id), m_is_loaded(false)
+resource::resource()
+ : m_is_loaded(false)
 {}
 
  bool resource::is_loaded() const

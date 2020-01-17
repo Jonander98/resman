@@ -10,12 +10,8 @@
 
 class texture : public resource
 {
-public:
-  file_path get_file_path()const;
 private:
   bool load(const file_path &)override final;
-private:
-  file_path m_file;
 };
 
 /*

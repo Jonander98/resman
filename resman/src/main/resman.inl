@@ -1,7 +1,3 @@
-#include "resman.h"
-#include "resman.h"
-#include "resman.h"
-
 /**
  * @author  Jon Ander Jimenez
  * @contact  jonander.jimenez@gmail.com
@@ -10,23 +6,22 @@
 template<typename resource_type>
 inline resource_ptr<resource_type> resman::get(const str_t & st)
 {
-  static_assert(std::is_base_of<resource, resource_type>::value,
-    "Every resource must derive from the resource class");
+  check_resource_type<resource_type>();
 
   resource_ptr<resource_type> ret_ptr;//null
 
   size_t id = typeid(resource_type).hash_code();
   auto it = m_resources.find(id);
-  if (it == m_resources.end())
+  auto ct = get_resource_container<resource_type>();
+  if (ct == nullptr)
   {
     //The resource is not registered
     XBREAK();
     return ret_ptr;
   }
 
-  auto & ct = *reinterpret_cast<resource_container<resource_type> *>(it->second);
-  auto it2 = ct.find(resource::compute_id<resource_type>(st));
-  if (it2 == ct.end())
+  auto it2 = ct->find(resource::compute_id<resource_type>(st));
+  if (it2 == ct->end())
   {
     //Resource not found
     return ret_ptr;
@@ -39,16 +34,32 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
 template<typename resource_type>
 inline void resman::load(const file_path & fp)
 {
-  static_assert(std::is_base_of<resource, resource_type>::value,
-    "Every resource must derive from the resource class");
-  //m_resources
+  check_resource_type<resource_type>();
+  if (get<resource_type>(fp.get_full_name()) != nullptr)
+  {//Resource already loaded
+    XBREAK();
+    return;
+  }
+  auto * cont = get_resource_container<resource_type>();
+  if (cont == nullptr)
+  {//Resource not registered
+    XBREAK();
+    return;
+  }
+  //Create an storage for the resource
+  resource::id_type res_id = resource::compute_id<resource_type>(fp.get_full_name());
+  auto & result = cont->try_emplace(res_id, (resource_type())).first->second;
+  //auto & result = (*cont)[res_id] = resource_type();
+  //Set the id of the resource
+  result.m_id = res_id;
+  //Start the load (syncronous for now)
+  result.internal_load(fp);
 }
 
 template<typename resource_type>
 inline void resman::register_resource()
 {
-  static_assert(std::is_base_of<resource, resource_type>::value,
-    "Every resource must derive from the resource class");
+  check_resource_type<resource_type>();
   size_t id = typeid(resource_type).hash_code();
   if (m_resources.find(id) != m_resources.end())
   {
@@ -68,8 +79,7 @@ inline void resman::register_resource()
 template<typename resource_type>
 inline bool resman::is_registered()
 {
-  static_assert(std::is_base_of<resource, resource_type>::value,
-    "Every resource must derive from the resource class");
+  check_resource_type<resource_type>();
   return get_resource_container<resource_type>() != nullptr;
 }
 
@@ -80,4 +90,13 @@ inline resman::resource_container<resource_type>* resman::get_resource_container
   auto it = m_resources.find(id);
   return (it == m_resources.end()) ? nullptr : reinterpret_cast<resource_container<resource_type>*>(it->second);
 
+}
+
+template<typename resource_type>
+inline void resman::check_resource_type()
+{
+  static_assert(std::is_base_of<resource, resource_type>::value,
+    "Every resource must derive from the resource class");
+  static_assert(std::is_default_constructible<resource_type>::value,
+    "Every resource must have a default constructor");
 }

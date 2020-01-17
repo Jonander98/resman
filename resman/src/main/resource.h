@@ -27,9 +27,13 @@ public://Static interface
   static id_type compute_id(const str_t &);
 protected:
   virtual ~resource() = default;
-  resource(id_type id);
+  resource();
+  //Only allow moving, not copying
   resource(const resource &) = delete;
+  resource(resource &&) = default;
+  //Cannot be assigned to avoid that the user duplicates data
   resource & operator=(const resource &) = delete;
+  resource & operator=(resource &&) = default;
 public:
   //True if the resource has been loaded
   bool is_loaded()const;
@@ -40,6 +44,7 @@ protected:
   //Override with the load of the resource
   virtual bool load(const file_path&) = 0;
 private:
+  //Wrapper around load to enable performing actions related with loading
   void internal_load(const file_path&);
 private:
   bool m_is_loaded{ false };  //If the resource is loaded or not

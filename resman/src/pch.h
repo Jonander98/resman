@@ -14,6 +14,7 @@
 #include <iostream>
 //Others
 #include <thread>
+#include <typeinfo>
 
 using f64 = double;
 using f32 = float;

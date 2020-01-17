@@ -198,6 +198,14 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\utils\src\filepath.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="src\main\resman.inl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="src\main\resource.inl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

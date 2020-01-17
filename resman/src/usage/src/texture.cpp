@@ -8,10 +8,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
-file_path texture::get_file_path() const
-{
-  return m_file;
-}
 
 bool texture::load(const file_path & path)
 {

@@ -40,8 +40,15 @@ public:
   template <typename resource_type>
   bool is_registered();
 private:
+  /*
+  * Returns a pointer to the corresponding resource container.
+  * It returns null if the resource was not previously registered
+  */
   template <typename resource_type>
   resource_container<resource_type> * get_resource_container();
+  //Performs all the static checks for all the structural requirements a resource must meet
+  template <typename resource_type>
+  void check_resource_type();
 private:
 
   //A map from type id to the corresponding resource container
