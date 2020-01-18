@@ -63,6 +63,7 @@ class resource_ptr
 public:
   resource_ptr() = default;
   resource_ptr(const resource_ptr &);
+  resource_ptr(resource_type *);
   //Returns the raw pointer
   resource_type * get();
   //Applies the arrow operator on the raw pointer

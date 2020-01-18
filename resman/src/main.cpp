@@ -47,6 +47,19 @@ TEST(resman, resource_request_load_syncronous)
   resource_ptr<texture> t_ptr = rm.get<texture>("test.png");
   ASSERT_TRUE(t_ptr.is_valid());
 }
+
+TEST(resman, resource_request_load_syncronous2)
+{
+  resman rm;
+  rm.register_resource<texture, model>();
+  rm.load<texture>("./assets/test.png");
+  rm.load<model>("./assets/test.model");
+  rm.load<texture>("./assets/test.png");
+  ASSERT_EQ(rm.get_all<texture>().size(), size_t(1));
+  ASSERT_EQ(rm.get_all<model>().size(), size_t(1));
+  rm.load<texture>("./assets/test2.png");
+  ASSERT_EQ(rm.get_all<texture>().size(), size_t(2));
+}
 //Examples
 #if 0
 

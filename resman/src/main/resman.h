@@ -9,6 +9,7 @@
 
 class resman
 {
+private://Private types
   template <typename resource_type>
   using resource_container = std::map<resource::id_type, resource_type>;
 public:
@@ -24,6 +25,8 @@ public:
   */
   template <typename resource_type>
   resource_ptr<resource_type> get(const str_t &);
+  template <typename resource_type>
+  std::vector<resource_ptr<resource_type>> get_all();
   /*
   *
   */

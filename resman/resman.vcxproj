@@ -182,6 +182,7 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\main\resource.h" />
     <ClInclude Include="src\utils\filepath.h" />
+    <ClInclude Include="src\utils\log.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main\src\resman.cpp" />
@@ -196,6 +197,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\utils\src\log.cpp" />
     <ClCompile Include="src\utils\src\filepath.cpp" />
   </ItemGroup>
   <ItemGroup>

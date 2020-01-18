@@ -32,6 +32,27 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
 }
 
 template<typename resource_type>
+inline std::vector<resource_ptr<resource_type>> resman::get_all()
+{
+  check_resource_type<resource_type>();
+
+  auto cont_ptr = get_resource_container<resource_type>();
+  if (cont_ptr == nullptr)
+  {//Resource not registered
+    XBREAK();
+    return {};
+  }
+  //Create the container
+  std::vector<resource_ptr<resource_type>> ret;
+  ret.reserve(cont_ptr->size());
+  //Fill it with all the resources
+  for (auto & pair : *cont_ptr)
+    ret.push_back(&pair.second);
+
+  return ret;
+}
+
+template<typename resource_type>
 inline void resman::load(const file_path & fp)
 {
   check_resource_type<resource_type>();

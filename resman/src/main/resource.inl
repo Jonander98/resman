@@ -1,5 +1,7 @@
-
-
+/**
+ * @author  Jon Ander Jimenez
+ * @contact  jonander.jimenez@gmail.com
+ */
 #pragma region resource
 template<typename resource_type>
 inline resource::id_type resource::compute_id(const str_t & st)
@@ -12,6 +14,11 @@ inline resource::id_type resource::compute_id(const str_t & st)
 template<typename resource_type>
 inline resource_ptr<resource_type>::resource_ptr(const resource_ptr & rhs)
   : m_ptr(rhs.m_ptr)
+{}
+
+template<typename resource_type>
+inline resource_ptr<resource_type>::resource_ptr(resource_type * ptr)
+  : m_ptr(ptr)
 {}
 
 
