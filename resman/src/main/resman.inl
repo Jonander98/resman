@@ -16,7 +16,7 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
   if (ct == nullptr)
   {
     //The resource is not registered
-    XBREAK();
+    m_log.warning("get: The resource is not registered");
     return ret_ptr;
   }
 
@@ -24,6 +24,7 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
   if (it2 == ct->end())
   {
     //Resource not found
+    m_log.warning("get: No load function has been called with the given parameters");
     return ret_ptr;
   }
   //Found
@@ -39,7 +40,7 @@ inline std::vector<resource_ptr<resource_type>> resman::get_all()
   auto cont_ptr = get_resource_container<resource_type>();
   if (cont_ptr == nullptr)
   {//Resource not registered
-    XBREAK();
+    m_log.warning("get_all: The resource is not registered");
     return {};
   }
   //Create the container
@@ -56,21 +57,22 @@ template<typename resource_type>
 inline void resman::load(const file_path & fp)
 {
   check_resource_type<resource_type>();
-  if (get<resource_type>(fp.get_full_name()) != nullptr)
-  {//Resource already loaded
-    XBREAK();
-    return;
-  }
   auto * cont = get_resource_container<resource_type>();
   if (cont == nullptr)
   {//Resource not registered
-    XBREAK();
+    m_log.warning("load: The resource is not registered");
     return;
   }
+  if (get<resource_type>(fp.get_full_name()) != nullptr)
+  {//Resource already loaded
+    m_log.info("load: The resource is already loaded");
+    return;
+  }
+
   //Create an storage for the resource
   resource::id_type res_id = resource::compute_id<resource_type>(fp.get_full_name());
   auto & result = cont->try_emplace(res_id, (resource_type())).first->second;
-  //auto & result = (*cont)[res_id] = resource_type();
+
   //Set the id of the resource
   result.m_id = res_id;
   //Start the load (syncronous for now)
@@ -85,7 +87,7 @@ inline void resman::register_resource()
   if (m_resources.find(id) != m_resources.end())
   {
     //Resource already registered
-    XBREAK();
+    m_log.info("register_resource: The resource is already registered");
     return;
   }
   m_resources[id] = new resource_container<resource_type>;

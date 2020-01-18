@@ -9,7 +9,7 @@
 /*
 * Simple log for storing error messages
 */
-class log
+class message_log
 {
 public://types
   enum message_flags

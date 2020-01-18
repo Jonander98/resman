@@ -6,6 +6,7 @@
 
 #include "pch.h"
 #include "resource.h"
+#include "utils/message_log.h"
 
 class resman
 {
@@ -19,20 +20,32 @@ public:
   resman & operator=(const resman &) = delete;
 public:
   /*
-  * If the load for the resource has been requeted, a valid pointer to the resource is given.
+  * If the load for the resource has been requested, a valid pointer to the resource is given.
   * But it might be not loaded yet.
   * If the id is not found, a non valid resource_ptr is returned
   */
   template <typename resource_type>
-  resource_ptr<resource_type> get(const str_t &);
+  resource_ptr<resource_type> get(const str_t &);  
+  /*
+  * Returns a vector with a pointer to all the resources of the given
+  * type that have been loaded
+  */
   template <typename resource_type>
   std::vector<resource_ptr<resource_type>> get_all();
   /*
-  *
+  * Loads a resource of the given type from the given path
   */
   template <typename resource_type>
   void load(const file_path &);
-
+public:
+  /*
+  * Sets the log used to inform the user of possible problems
+  */
+  void set_log(const message_log &);
+  /*
+  * Returns the log in its current status
+  */
+  const message_log & get_log()const;
 public:
   //Registers a resource type
   template <typename resource_type>
@@ -56,7 +69,8 @@ private:
 
   //A map from type id to the corresponding resource container
   std::map<size_t, void*> m_resources;
-
+  //The log for the errors
+  message_log m_log;
 };
 
 #include "resman.inl"
