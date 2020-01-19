@@ -3,5 +3,7 @@ X-Create an storage for the resources and how to organize them
 -Memory allocator for the resources
 -Load resources asyncronously
 -Fix a maximum number of threads and distribute the work load
+-Resource unloading
+-Resource manager status(loaded resources, unused resources...)
 X-Add a log for errors
--The resource_ptr keeps the reference count(shared_ptr)
+X-The resource_ptr keeps the reference count(shared_ptr)

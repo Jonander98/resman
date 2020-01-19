@@ -10,6 +10,7 @@
 #include <vector>
 #include <functional>
 #include <map>
+#include <array>
 //IO
 #include <iostream>
 //Others

@@ -56,6 +56,50 @@ TEST(resman, resource_request_load_syncronous2)
   ASSERT_EQ(rm.get_all_t<texture>().size(), size_t(2));
   //rm.get_log().print();
 }
+TEST(resman, resource_unload)
+{
+  resman rm;
+  rm.register_resource<texture>();
+  rm.load<texture>("./assets/test.png");
+  rm.load<texture>("./assets/test.png");
+  rm.unload<texture>("test.png");
+  rm.unload<texture>("test.png");
+  ASSERT_EQ(rm.get_all_t<texture>().size(), size_t(0));
+  rm.load<texture>("./assets/test2.png");
+  rm.load<texture>("./assets/test.png");
+  ASSERT_EQ(rm.get_all_t<texture>().size(), size_t(2));
+  rm.unload<texture>("test2.png");
+  ASSERT_EQ(rm.get_all_t<texture>().size(), size_t(1));
+  ASSERT_TRUE(rm.get<texture>("test.png").is_valid());
+
+  //rm.get_log().print();
+}
+TEST(resman, resource_unload_all_t)
+{
+  resman rm;
+  rm.register_resource<texture>();
+  rm.load<texture>("./assets/test.png");
+  rm.load<texture>("./assets/test2.png");
+  rm.load<texture>("./assets/test3.png");
+  rm.unload_all_t<texture>();
+  ASSERT_EQ(rm.get_all_t<texture>().size(), size_t(0));
+
+  //rm.get_log().print();
+}
+TEST(resman, resource_unload_all)
+{
+  resman rm;
+  rm.register_resource<texture, model>();
+  rm.load<texture>("./assets/test.png");
+  rm.load<texture>("./assets/test2.png");
+  rm.load<texture>("./assets/test3.png");
+  rm.load<model>("./assets/test.obj");
+  rm.unload_all();
+  ASSERT_EQ(rm.get_all_t<texture>().size(), size_t(0));
+  ASSERT_EQ(rm.get_all_t<model>().size(), size_t(0));
+
+  //rm.get_log().print();
+}
 //Examples
 #if 0
 

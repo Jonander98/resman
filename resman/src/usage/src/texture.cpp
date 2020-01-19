@@ -11,6 +11,7 @@
 
 bool texture::load(const file_path & path)
 {
+  //std::cout << "LOAD: texture" << std::endl;
   //Flip Y for opengl
   stbi_set_flip_vertically_on_load(true);
 
@@ -21,4 +22,9 @@ bool texture::load(const file_path & path)
 
   stbi_image_free(data);
   return true;
+}
+
+void texture::unload()
+{
+  //std::cout << "UNLOAD: texture" << std::endl;
 }

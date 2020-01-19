@@ -87,7 +87,6 @@ private:
   template <typename resource_type>
   void check_resource_type();
 private:
-
   //A map from type id to the corresponding resource container
   std::map<size_t, void*> m_resources;
   //The log for the errors

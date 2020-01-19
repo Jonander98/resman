@@ -11,7 +11,12 @@
 class texture : public resource
 {
 private:
-  bool load(const file_path &)override final;
+  bool load(const file_path &)override;
+  void unload()override;
+
+  i32 foo;
+  std::vector<u32> bar;
+  std::array<i32, 80> mar;
 };
 
 /*

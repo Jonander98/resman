@@ -17,10 +17,8 @@ TEST(resource_ptr, creation)
   //resource_ptr<int> ptr;
   //resource_ptr<texture> tex_ptr(new texture);
 
-  //ASSERT_TRUE(resource_ptr<texture>().is_valid() == false);
-  //Get reference count returns the actual reference count - 1 as we assume on will be kept by the
-  //resman and we don't want to tell the user that there is a reference left somewhere
-  //ASSERT_EQ(resource_ptr<texture>().get_reference_count(), u32(-1));
+  ASSERT_TRUE(resource_ptr<texture>().is_valid() == false);
+  ASSERT_EQ(resource_ptr<texture>().get_reference_count(), i32(0));
 }
 
 TEST(resource_ptr, reference_counting)

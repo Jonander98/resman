@@ -20,8 +20,18 @@ resource::resource()
    return m_id;
  }
 
-void resource::internal_load(const file_path & fp)
+ void resource::unload()
+ {
+ }
+
+ void resource::internal_load(const file_path & fp)
 {
   load(fp);
   m_is_loaded = true;
 }
+
+ void resource::internal_unload()
+ {
+   unload();
+   m_is_loaded = false;
+ }

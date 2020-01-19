@@ -8,6 +8,12 @@
 
 bool model::load(const file_path & path)
 {
+  //std::cout << "LOAD: model" << std::endl;
   (void)path;
   return true;
+}
+
+void model::unload()
+{
+  //std::cout << "UNLOAD: model" << std::endl;
 }

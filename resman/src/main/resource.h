@@ -43,9 +43,13 @@ protected:
 
   //Override with the load of the resource
   virtual bool load(const file_path&) = 0;
+  //Option to control when a resource is unloaded apart from the destructor
+  virtual void unload();
 private:
   //Wrapper around load to enable performing actions related with loading
   void internal_load(const file_path&);
+  //Wrapper around unload to enable performing actions related with unloading
+  void internal_unload();
 private:
   bool m_is_loaded{ false };  //If the resource is loaded or not
   id_type m_id;               //Identification number for the resource

@@ -10,8 +10,6 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
 
   resource_ptr<resource_type> ret_ptr;//null
 
-  size_t id = typeid(resource_type).hash_code();
-  auto it = m_resources.find(id);
   auto ct = get_resource_container<resource_type>();
   if (ct == nullptr)
   {
@@ -20,15 +18,15 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
     return ret_ptr;
   }
 
-  auto it2 = ct->find(resource::compute_id<resource_type>(st));
-  if (it2 == ct->end())
+  auto it = ct->find(resource::compute_id<resource_type>(st));
+  if (it == ct->end())
   {
     //Resource not found
     //m_log.warning("get: No load function has been called with the given parameters");
     return ret_ptr;
   }
   //Found
-  return it2->second.m_ptr;
+  return it->second.m_ptr;
 }
 
 template<typename resource_type>
@@ -77,6 +75,40 @@ inline void resman::load(const file_path & fp)
   result.m_ptr = resource_ptr<resource_type>(&result.m_resource);
   //Start the load (syncronous for now)
   result.m_resource.internal_load(fp);
+}
+
+template<typename resource_type>
+inline void resman::unload(const str_t & st)
+{
+  check_resource_type<resource_type>();
+  auto ct = get_resource_container<resource_type>();
+  if (ct == nullptr)
+  {
+    m_log.info("unload: The resource is not registered");
+    return;
+  }
+  auto it = ct->find(resource::compute_id<resource_type>(st));
+  if (it != ct->end())
+  {
+    it->second.m_resource.internal_unload();
+    ct->erase(it);
+  }
+}
+
+template<typename resource_type>
+inline void resman::unload_all_t()
+{
+  check_resource_type<resource_type>();
+
+  auto ct = get_resource_container<resource_type>();
+  if (ct == nullptr)
+  {
+    m_log.info("unload_all_t: The resource is not registered");
+    return;
+  }
+  for (auto & pair : *ct)
+    pair.second.m_resource.internal_unload();
+  ct->clear();
 }
 
 template<typename resource_type>
