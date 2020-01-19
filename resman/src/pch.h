@@ -16,6 +16,7 @@
 //Others
 #include <thread>
 #include <typeinfo>
+#include <type_traits>
 
 using f64 = double;
 using f32 = float;

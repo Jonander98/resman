@@ -4,6 +4,10 @@
  */
 #pragma once
 
-#include "resman_tests.h"
+//#include "resman_tests.h"
 //#include "message_log_tests.h"
 //#include "resource_tests.h"
+#include "type_tests_tests.h"
+
+
+

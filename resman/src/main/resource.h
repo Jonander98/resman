@@ -21,6 +21,8 @@ class resource
 {
 private://types
   friend class resman;
+  template <typename ...types>
+  friend class reswoman;
   using id_type = size_t;
 public://Static interface
   template <typename resource_type>

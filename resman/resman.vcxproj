@@ -177,6 +177,8 @@
   <ItemGroup>
     <ClInclude Include="src\tests\resource_tests.h" />
     <ClInclude Include="src\tests\tests.h" />
+    <ClInclude Include="src\tests\type_tests_tests.h" />
+    <ClInclude Include="src\type_test.h" />
     <ClInclude Include="src\usage\model.h" />
     <ClInclude Include="src\usage\object.h" />
     <ClInclude Include="src\usage\texture.h" />
