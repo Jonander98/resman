@@ -175,6 +175,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\tests\tests.h" />
     <ClInclude Include="src\usage\model.h" />
     <ClInclude Include="src\usage\object.h" />
     <ClInclude Include="src\usage\texture.h" />
@@ -186,6 +187,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main\src\resman.cpp" />
+    <ClInclude Include="src\tests\message_log_tests.h">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="src\tests\resman_tests.h">
+      <FileType>CppCode</FileType>
+    </ClInclude>
     <ClCompile Include="src\usage\src\model.cpp" />
     <ClCompile Include="src\usage\src\object.cpp" />
     <ClCompile Include="src\usage\src\texture.cpp" />

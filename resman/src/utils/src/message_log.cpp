@@ -7,18 +7,24 @@
 
 void message_log::error(const str_t & st)
 {
+  if (m_ignored_messages & message_flag::m_error)
+    return;
   const char err[] = "Error: ";
   push_message(err + st);
 }
 
 void message_log::warning(const str_t & st)
 {
+  if (m_ignored_messages & message_flag::m_warning)
+    return;
   const char war[] = "Warning: ";
   push_message(war + st);
 }
 
 void message_log::info(const str_t & st)
 {
+  if (m_ignored_messages & message_flag::m_info)
+    return;
   const char info[] = "Info: ";
   push_message(info + st);
 }
@@ -42,10 +48,12 @@ void message_log::clear_keep_mem()
 
 std::vector<char> message_log::get_log() const
 {
-  return std::vector<char>(m_data.begin(), std::next(m_data.begin(), m_log_offset));
+  std::vector<char> tmp(m_data.begin(), std::next(m_data.begin(), m_log_offset));
+  tmp.push_back(0);
+  return tmp;
 }
 
-void message_log::print_log() const
+void message_log::print() const
 {
   std::cout << get_log().data() << std::endl;
 }

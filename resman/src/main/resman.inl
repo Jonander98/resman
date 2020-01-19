@@ -24,7 +24,7 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
   if (it2 == ct->end())
   {
     //Resource not found
-    m_log.warning("get: No load function has been called with the given parameters");
+    //m_log.warning("get: No load function has been called with the given parameters");
     return ret_ptr;
   }
   //Found

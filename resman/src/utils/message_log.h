@@ -12,13 +12,14 @@
 class message_log
 {
 public://types
-  enum message_flags
+  enum message_flag
   {
     m_none    = 0,
     m_info    = 1 << 0,
     m_warning = 1 << 1,
     m_error   = 1 << 2
   };
+  using message_flags = i32;
 public:
   /*
   * Puts an error message into the log
@@ -51,7 +52,7 @@ public:
   /*
   * Prints to the console the current data stored on the log
   */
-  void print_log()const;
+  void print()const;
 private:
   /*
   * Returns a pointer to a memory block of size 's' 
