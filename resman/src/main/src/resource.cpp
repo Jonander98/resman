@@ -7,7 +7,7 @@
 
 
 resource::resource()
- : m_is_loaded(false)
+  : m_is_loaded(false)
 {}
 
  bool resource::is_loaded() const

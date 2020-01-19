@@ -175,6 +175,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\tests\resource_tests.h" />
     <ClInclude Include="src\tests\tests.h" />
     <ClInclude Include="src\usage\model.h" />
     <ClInclude Include="src\usage\object.h" />

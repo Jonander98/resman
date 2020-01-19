@@ -50,10 +50,10 @@ TEST(resman, resource_request_load_syncronous2)
   rm.load<texture>("./assets/test.png");
   rm.load<model>("./assets/test.model");
   rm.load<texture>("./assets/test.png");
-  ASSERT_EQ(rm.get_all<texture>().size(), size_t(1));
-  ASSERT_EQ(rm.get_all<model>().size(), size_t(1));
+  ASSERT_EQ(rm.get_all_t<texture>().size(), size_t(1));
+  ASSERT_EQ(rm.get_all_t<model>().size(), size_t(1));
   rm.load<texture>("./assets/test2.png");
-  ASSERT_EQ(rm.get_all<texture>().size(), size_t(2));
+  ASSERT_EQ(rm.get_all_t<texture>().size(), size_t(2));
   //rm.get_log().print();
 }
 //Examples

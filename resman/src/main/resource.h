@@ -48,11 +48,15 @@ private:
   void internal_load(const file_path&);
 private:
   bool m_is_loaded{ false };  //If the resource is loaded or not
-  id_type m_id;
+  id_type m_id;               //Identification number for the resource
 };
 
 
-//shared_ptr style class
+/*
+*  A pointer to a resource
+*  It keeps track of how many of them exist as shared ptr, but the resman has control over
+*  when the dealocation of the resource happens
+*/
 template <typename resource_type>
 class resource_ptr
 {
@@ -60,24 +64,33 @@ class resource_ptr
     "Every resource must derive from the resource class");
 
   friend class resman;
+  //Only the resource manager can create valid versions of these
+  explicit resource_ptr(resource_type * );
 public:
-  resource_ptr() = default;
+  //Allow for default contruction
+  resource_ptr();
+  ~resource_ptr();
   resource_ptr(const resource_ptr &);
-  resource_ptr(resource_type *);
   //Returns the raw pointer
   resource_type * get();
   //Applies the arrow operator on the raw pointer
   resource_type * operator->()const;
+  //Assignment operator between two resource ptr
   resource_ptr & operator=(const resource_ptr & rhs);
   //Allows using the resource_ptr as a raw pointer
   operator resource_type *();
 public:
-  //returns true if the pointer is valid
-  bool is_valid();
-
+  //Returns true if the pointer is valid
+  bool is_valid()const;
+  //Returns the number of times the pointer is referenced
+  i32 get_reference_count()const;
 
 private:
-  resource_type * m_ptr{nullptr};
+  //Removes the ownership from its pointed resource
+  void remove_ownership();
+private:
+  i32 * m_ref_count;    //Number of active references to the pointed value
+  resource_type * m_ptr;//A pointer to the data
 };
 
 #include "resource.inl"

@@ -12,7 +12,13 @@ class resman
 {
 private://Private types
   template <typename resource_type>
-  using resource_container = std::map<resource::id_type, resource_type>;
+  struct resource_node
+  {
+    resource_type m_resource;
+    resource_ptr<resource_type> m_ptr;
+  };
+  template <typename resource_type>
+  using resource_container = std::map<resource::id_type, resource_node<resource_type>>;
 public:
   ~resman();
   resman() = default;
@@ -31,12 +37,26 @@ public:
   * type that have been loaded
   */
   template <typename resource_type>
-  std::vector<resource_ptr<resource_type>> get_all();
+  std::vector<resource_ptr<resource_type>> get_all_t();
   /*
   * Loads a resource of the given type from the given path
   */
   template <typename resource_type>
   void load(const file_path &);
+  /*
+  * Unloads the specified resource
+  */
+  template<typename resource_type>
+  void unload(const str_t &);
+  /*
+  * Unloads all the resources of the specified type
+  */
+  template<typename resource_type>
+  void unload_all_t();
+  /*
+  * Unloads all the resources
+  */
+  void unload_all();
 public:
   /*
   * Sets the log used to inform the user of possible problems
@@ -53,6 +73,7 @@ public:
   //Registers a group of resource types
   template <typename resource_type, typename resource_type2, typename ...args>
   void register_resource();
+  //Checks if a resource is registered
   template <typename resource_type>
   bool is_registered();
 private:

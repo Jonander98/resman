@@ -19,7 +19,7 @@ public://types
     m_warning = 1 << 1,
     m_error   = 1 << 2
   };
-  using message_flags = i32;
+  using message_flags = u32;
 public:
   /*
   * Puts an error message into the log
