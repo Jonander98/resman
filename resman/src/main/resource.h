@@ -67,9 +67,9 @@ class resource_ptr
   static_assert(std::is_base_of<resource, resource_type>::value,
     "Every resource must derive from the resource class");
 
-  friend class resman;
   //Only the resource manager can create valid versions of these
-  explicit resource_ptr(resource_type * );
+  friend class resman;
+  explicit resource_ptr(resource_type *);
 public:
   //Allow for default contruction
   resource_ptr();

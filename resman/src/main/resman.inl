@@ -26,7 +26,7 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
     return ret_ptr;
   }
   //Found
-  return it->second.m_ptr;
+  return it->second;
 }
 
 template<typename resource_type>
@@ -45,7 +45,7 @@ inline std::vector<resource_ptr<resource_type>> resman::get_all_t()
   ret.reserve(cont_ptr->size());
   //Fill it with all the resources
   for (auto & pair : *cont_ptr)
-    ret.push_back(pair.second.m_ptr);
+    ret.push_back(pair.second);
 
   return ret;
 }
@@ -68,13 +68,15 @@ inline void resman::load(const file_path & fp)
 
   //Create an storage for the resource
   resource::id_type res_id = resource::compute_id<resource_type>(fp.get_full_name());
-  auto & result = cont->try_emplace(res_id, resource_node<resource_type>()).first->second;
+  auto & res_ptr = cont->try_emplace(res_id, resource_ptr<resource_type>()).first->second;
+
+  //Allocate the resource
+  res_ptr = resource_ptr<resource_type>(new resource_type);
 
   //Set the id of the resource
-  result.m_resource.m_id = res_id;
-  result.m_ptr = resource_ptr<resource_type>(&result.m_resource);
+  res_ptr->m_id = res_id;
   //Start the load (syncronous for now)
-  result.m_resource.internal_load(fp);
+  res_ptr->internal_load(fp);
 }
 
 template<typename resource_type>
@@ -90,7 +92,11 @@ inline void resman::unload(const str_t & st)
   auto it = ct->find(resource::compute_id<resource_type>(st));
   if (it != ct->end())
   {
-    it->second.m_resource.internal_unload();
+    it->second->internal_unload();
+    if(it->second.get_reference_count() > 0)
+      m_log.info("unload: The resource was still in use");
+    //Deallocate the memory
+    delete it->second.get();
     ct->erase(it);
   }
 }
@@ -107,7 +113,10 @@ inline void resman::unload_all_t()
     return;
   }
   for (auto & pair : *ct)
-    pair.second.m_resource.internal_unload();
+  {
+    pair.second->internal_unload();
+    delete pair.second.get();
+  }
   ct->clear();
 }
 

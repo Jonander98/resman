@@ -11,14 +11,9 @@
 class resman
 {
 private://Private types
+
   template <typename resource_type>
-  struct resource_node
-  {
-    resource_type m_resource;
-    resource_ptr<resource_type> m_ptr;
-  };
-  template <typename resource_type>
-  using resource_container = std::map<resource::id_type, resource_node<resource_type>>;
+  using resource_container = std::map<resource::id_type, resource_ptr<resource_type>>;
 public:
   ~resman();
   resman() = default;
@@ -86,6 +81,7 @@ private:
   //Performs all the static checks for all the structural requirements a resource must meet
   template <typename resource_type>
   void check_resource_type();
+
 private:
   //A map from type id to the corresponding resource container
   std::map<size_t, void*> m_resources;
