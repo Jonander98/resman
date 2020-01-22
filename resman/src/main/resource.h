@@ -8,14 +8,14 @@
 #include "utils/filepath.h"
 
 /*
-Hash function used to compute the id
-It can be specialized for a concrete resource
+* Hash function used to compute the id
+* It can be specialized for a concrete resource
 */
 template <typename resource_type>
 struct resource_hash : public std::hash<str_t> {};
 /*
-Usage
-Derive + implement load
+* Base for all the resources used by the resource manager
+* All the resources must derive from this an implement a load function
 */
 class resource
 {
@@ -27,8 +27,8 @@ public://Static interface
   static id_type compute_id(const str_t &);
 protected:
   virtual ~resource() = default;
-  resource();
-  //Only allow moving, not copying
+  resource() = default;
+  //Only allow moving, not copying to avoid duplicating data
   resource(const resource &) = delete;
   resource(resource &&) = default;
   //Cannot be assigned to avoid that the user duplicates data
@@ -73,7 +73,9 @@ class resource_ptr
 public:
   //Allow for default contruction
   resource_ptr();
+  //Reduces the count of active references
   ~resource_ptr();
+  //Create a new reference to the resource
   resource_ptr(const resource_ptr &);
   //Returns the raw pointer
   resource_type * get();

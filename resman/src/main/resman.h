@@ -15,6 +15,7 @@ private://Private types
   template <typename resource_type>
   using resource_container = std::map<resource::id_type, resource_ptr<resource_type>>;
 public:
+  //Makes sure all the resources get unloaded
   ~resman();
   resman() = default;
   resman(const resman &) = delete;
@@ -80,7 +81,7 @@ private:
   resource_container<resource_type> * get_resource_container();
   //Performs all the static checks for all the structural requirements a resource must meet
   template <typename resource_type>
-  void check_resource_type();
+  constexpr void check_resource_type();
 
 private:
   //A map from type id to the corresponding resource container

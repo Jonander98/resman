@@ -138,7 +138,6 @@ inline void resman::register_resource()
 {
   register_resource<resource_type>();
   register_resource<resource_type2, args...>();
-
 }
 template<typename resource_type>
 inline bool resman::is_registered()
@@ -157,7 +156,7 @@ inline resman::resource_container<resource_type>* resman::get_resource_container
 }
 
 template<typename resource_type>
-inline void resman::check_resource_type()
+inline constexpr void resman::check_resource_type()
 {
   static_assert(std::is_base_of<resource, resource_type>::value,
     "Every resource must derive from the resource class");
