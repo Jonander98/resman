@@ -40,6 +40,11 @@ public:
   template <typename resource_type>
   void load(const file_path &);
   /*
+  * Loads a resource of the given type from the given path asyncronously
+  */
+  template <typename resource_type>
+  void load_async(const file_path &);
+  /*
   * Unloads the specified resource
   */
   template<typename resource_type>
@@ -83,11 +88,20 @@ private:
   template <typename resource_type>
   constexpr void check_resource_type();
 
+  /*
+  * Loads a resource of the given type from the given path.
+  * Must specify if it should be asyncronous or not
+  */
+  template <typename resource_type>
+  void internal_load(const file_path &, bool is_async);
+
 private:
   //A map from type id to the corresponding resource container
   std::map<size_t, void*> m_resources;
   //The log for the errors
   message_log m_log;
+  //Thread used to load asyncronously(one for now)
+  std::thread m_thread;
 };
 
 #include "resman.inl"

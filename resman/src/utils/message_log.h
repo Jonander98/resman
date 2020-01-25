@@ -63,7 +63,7 @@ private:
   */
   void push_message(const str_t &);
 private:
-  std::vector<i8> m_data;                   //The full log
+  std::vector<char> m_data;                 //The full log
   size_t m_log_offset{0};                   //An offset in m_data representing where the log ends
   message_flags m_ignored_messages{m_none}; //The message types to ignore
 };

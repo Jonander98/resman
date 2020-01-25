@@ -53,30 +53,13 @@ inline std::vector<resource_ptr<resource_type>> resman::get_all_t()
 template<typename resource_type>
 inline void resman::load(const file_path & fp)
 {
-  check_resource_type<resource_type>();
-  auto * cont = get_resource_container<resource_type>();
-  if (cont == nullptr)
-  {//Resource not registered
-    m_log.warning("load: The resource is not registered");
-    return;
-  }
-  if (get<resource_type>(fp.get_full_name()) != nullptr)
-  {//Resource already loaded
-    m_log.info("load: The resource is already loaded");
-    return;
-  }
+  internal_load<resource_type>(fp, false);
+}
 
-  //Create an storage for the resource
-  resource::id_type res_id = resource::compute_id<resource_type>(fp.get_full_name());
-  auto & res_ptr = cont->try_emplace(res_id, resource_ptr<resource_type>()).first->second;
-
-  //Allocate the resource
-  res_ptr = resource_ptr<resource_type>(new resource_type);
-
-  //Set the id of the resource
-  res_ptr->m_id = res_id;
-  //Start the load (syncronous for now)
-  res_ptr->internal_load(fp);
+template<typename resource_type>
+inline void resman::load_async(const file_path & fp)
+{
+  internal_load<resource_type>(fp, true);
 }
 
 template<typename resource_type>
@@ -162,4 +145,41 @@ inline constexpr void resman::check_resource_type()
     "Every resource must derive from the resource class");
   static_assert(std::is_default_constructible<resource_type>::value,
     "Every resource must have a default constructor");
+}
+
+template<typename resource_type>
+inline void resman::internal_load(const file_path & fp, bool is_async)
+{
+  check_resource_type<resource_type>();
+  auto * cont = get_resource_container<resource_type>();
+  if (cont == nullptr)
+  {//Resource not registered
+    m_log.warning("load: The resource is not registered");
+    return;
+  }
+  if (get<resource_type>(fp.get_full_name()) != nullptr)
+  {//Resource already loaded
+    m_log.info("load: The resource is already loaded");
+    return;
+  }
+
+  //Create an storage for the resource
+  resource::id_type res_id = resource::compute_id<resource_type>(fp.get_full_name());
+  auto & res_ptr = cont->try_emplace(res_id, resource_ptr<resource_type>()).first->second;
+
+  //Allocate the resource
+  res_ptr = resource_ptr<resource_type>(new resource_type);
+
+  //Set the id of the resource
+  res_ptr->m_id = res_id;
+  //Start the load
+  if (is_async)
+  {
+    m_thread = std::thread(&resource_type::internal_load, res_ptr.get(), fp);
+    m_thread.detach();
+  }
+  else
+  {
+    res_ptr->internal_load(fp);
+  }
 }
