@@ -11,7 +11,7 @@
 class texture : public resource
 {
 private:
-  bool load(const file_path &)override;
+  bool load(const filepath &)override;
   void unload()override;
 
   i32 foo;
@@ -30,4 +30,22 @@ struct resource_hash<texture>
     //Use custom hashing here
     return std::hash<str_t>{}(st);
   }
+};
+
+
+
+class dummy : public resource
+{
+private:
+  bool load(const filepath &)override
+  {
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(1s);
+    i32 i = 0;
+    for (i32 & el : ordered)
+      el = i++;
+    return true;
+  }
+  
+  std::array<i32, 80> ordered;
 };

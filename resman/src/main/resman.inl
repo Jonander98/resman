@@ -51,13 +51,13 @@ inline std::vector<resource_ptr<resource_type>> resman::get_all_t()
 }
 
 template<typename resource_type>
-inline void resman::load(const file_path & fp)
+inline void resman::load(const filepath & fp)
 {
   internal_load<resource_type>(fp, false);
 }
 
 template<typename resource_type>
-inline void resman::load_async(const file_path & fp)
+inline void resman::load_async(const filepath & fp)
 {
   internal_load<resource_type>(fp, true);
 }
@@ -148,7 +148,7 @@ inline constexpr void resman::check_resource_type()
 }
 
 template<typename resource_type>
-inline void resman::internal_load(const file_path & fp, bool is_async)
+inline void resman::internal_load(const filepath & fp, bool is_async)
 {
   check_resource_type<resource_type>();
   auto * cont = get_resource_container<resource_type>();
@@ -175,8 +175,11 @@ inline void resman::internal_load(const file_path & fp, bool is_async)
   //Start the load
   if (is_async)
   {
-    m_thread = std::thread(&resource_type::internal_load, res_ptr.get(), fp);
-    m_thread.detach();
+    worker::task t;
+    t.who = res_ptr.get();
+    t.what = &resource_type::internal_load;
+    t.how = fp;
+    find_best_worker().add_task(t);
   }
   else
   {

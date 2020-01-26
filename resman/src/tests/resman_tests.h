@@ -121,17 +121,42 @@ bool wait_until(const std::function<bool()> & cond, f32 max_seconds)
   return cond_val;
 }
 
-TEST(resman, resource_load_async)
+TEST(resman, resource_load_async2)
 {
   resman rm;
-  rm.register_resource<texture, model>();
+  rm.register_resource<dummy>();
 
-  rm.load_async<texture>("./assets/test.png");
-  resource_ptr<texture> rp = rm.get<texture>("test.png");
+  rm.load_async<dummy>("./assets/test.png");
+  rm.load_async<dummy>("./assets/test2.png");
+  rm.load_async<dummy>("./assets/test3.png");
+  rm.load_async<dummy>("./assets/test4.png");
+  rm.load_async<dummy>("./assets/test5.png");
+
+  resource_ptr<dummy> rp = rm.get<dummy>("test5.png");
   ASSERT_TRUE(rp.is_valid());
   ASSERT_TRUE(!rp->is_loaded());
   bool condition_succeded = wait_until([&rp]() -> bool
   {
+    //std::cout << "time passes" << "\n";
+    return rp->is_loaded();
+  },
+    100.f);//Max wait 2 seconds
+
+  ASSERT_TRUE(condition_succeded);
+
+}
+TEST(resman, resource_load_async)
+{
+  resman rm;
+  rm.register_resource<texture, model, dummy>();
+
+  rm.load_async<dummy>("./assets/test.png");
+  resource_ptr<dummy> rp = rm.get<dummy>("test.png");
+  ASSERT_TRUE(rp.is_valid());
+  ASSERT_TRUE(!rp->is_loaded());
+  bool condition_succeded = wait_until([&rp]() -> bool
+  {
+    //std::cout << "time passes" << "\n";
     return rp->is_loaded();
   },
     2.f);//Max wait 2 seconds

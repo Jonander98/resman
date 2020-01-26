@@ -11,7 +11,7 @@
 class model : public resource
 {
 private:
-  bool load(const file_path &)override final;
+  bool load(const filepath &)override final;
   void unload()override;
   i32 foo;
   std::vector<u32> bar;

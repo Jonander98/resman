@@ -11,7 +11,35 @@
 class resman
 {
 private://Private types
-
+  class worker
+  {
+  public:
+    //For calling: (obj->*(var)) (filepath)
+    using load_fn = void (resource::*) (const filepath &);
+    struct task
+    {
+      //object
+      resource * who;
+      //function
+      load_fn what;
+      //parameters
+      filepath how;
+    };
+    //Adds a task to the queue
+    void add_task(task fn);
+    //Returns the number of tasks
+    size_t get_task_queue_size()const;
+    //Closes the thread of the worker
+    void close_thread();
+  private:
+    //Function called by the thread to keep looking for tasks
+    void thread_loop();
+  private:
+    std::queue<task> m_tasks;
+    std::thread m_thread;
+    bool m_should_stop{ false };
+    std::mutex m_task_mutex;
+  };
   template <typename resource_type>
   using resource_container = std::map<resource::id_type, resource_ptr<resource_type>>;
 public:
@@ -38,12 +66,12 @@ public:
   * Loads a resource of the given type from the given path
   */
   template <typename resource_type>
-  void load(const file_path &);
+  void load(const filepath &);
   /*
   * Loads a resource of the given type from the given path asyncronously
   */
   template <typename resource_type>
-  void load_async(const file_path &);
+  void load_async(const filepath &);
   /*
   * Unloads the specified resource
   */
@@ -93,15 +121,21 @@ private:
   * Must specify if it should be asyncronous or not
   */
   template <typename resource_type>
-  void internal_load(const file_path &, bool is_async);
+  void internal_load(const filepath &, bool is_async);
+
+  /*
+  * Finds between the available workers the one that has
+  * the smaller workload (task)
+  */
+  worker & find_best_worker();
 
 private:
   //A map from type id to the corresponding resource container
   std::map<size_t, void*> m_resources;
   //The log for the errors
   message_log m_log;
-  //Thread used to load asyncronously(one for now)
-  std::thread m_thread;
+  //The ones loading resources asyncronously
+  std::vector<worker> m_workers = std::vector<worker>(2);//2 workers for now
 };
 
 #include "resman.inl"

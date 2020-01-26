@@ -11,12 +11,14 @@
 #include <functional>
 #include <map>
 #include <array>
+#include <queue>
 //IO
 #include <iostream>
 //Others
 #include <thread>
 #include <typeinfo>
 #include <chrono>
+#include <mutex>
 
 using f64 = double;
 using f32 = float;
