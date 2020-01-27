@@ -10,6 +10,12 @@
 #include "usage/texture.h"
 #include "usage/model.h"
 
+class resman_fixture : public ::testing::Test
+{
+protected:
+  void SetUp()override { rm.register_resource<texture, model, dummy>(); }
+  resman rm;
+};
 
 TEST(resman, resource_registration)
 {
@@ -23,10 +29,8 @@ TEST(resman, resource_registration)
   ASSERT_TRUE(rm2.is_registered<model>());
 }
 
-TEST(resman, resource_request_no_load)
+TEST_F(resman_fixture, resource_request_no_load)
 {
-  resman rm;
-  rm.register_resource<texture>();
   resource_ptr<texture> t_ptr = rm.get<texture>("test.png");
   ASSERT_TRUE(!t_ptr.is_valid());
 
@@ -34,19 +38,16 @@ TEST(resman, resource_request_no_load)
   //ASSERT_TRUE(typeid(t) == typeid(*reinterpret_cast<resource*>(&t)));
 
 }
-TEST(resman, resource_request_load_syncronous)
+TEST_F(resman_fixture, resource_request_load_syncronous)
 {
-  resman rm;
-  rm.register_resource<texture>();
   rm.load<texture>("./assets/test.png");
   resource_ptr<texture> t_ptr = rm.get<texture>("test.png");
   ASSERT_TRUE(t_ptr.is_valid());
 }
 
-TEST(resman, resource_request_load_syncronous2)
+TEST_F(resman_fixture, resource_request_load_syncronous2)
 {
-  resman rm;
-  rm.register_resource<texture, model>();
+
   rm.load<texture>("./assets/test.png");
   rm.load<model>("./assets/test.model");
   rm.load<texture>("./assets/test.png");
@@ -56,10 +57,9 @@ TEST(resman, resource_request_load_syncronous2)
   ASSERT_EQ(rm.get_all_t<texture>().size(), size_t(2));
   //rm.get_log().print();
 }
-TEST(resman, resource_unload)
+TEST_F(resman_fixture, resource_unload)
 {
-  resman rm;
-  rm.register_resource<texture>();
+
   rm.load<texture>("./assets/test.png");
   rm.load<texture>("./assets/test.png");
   rm.unload<texture>("test.png");
@@ -74,10 +74,9 @@ TEST(resman, resource_unload)
 
   //rm.get_log().print();
 }
-TEST(resman, resource_unload_all_t)
+TEST_F(resman_fixture, resource_unload_all_t)
 {
-  resman rm;
-  rm.register_resource<texture>();
+
   rm.load<texture>("./assets/test.png");
   rm.load<texture>("./assets/test2.png");
   rm.load<texture>("./assets/test3.png");
@@ -86,10 +85,8 @@ TEST(resman, resource_unload_all_t)
 
   //rm.get_log().print();
 }
-TEST(resman, resource_unload_all)
+TEST_F(resman_fixture, resource_unload_all)
 {
-  resman rm;
-  rm.register_resource<texture, model>();
   rm.load<texture>("./assets/test.png");
   rm.load<texture>("./assets/test2.png");
   rm.load<texture>("./assets/test3.png");
@@ -121,10 +118,27 @@ bool wait_until(const std::function<bool()> & cond, f32 max_seconds)
   return cond_val;
 }
 
-TEST(resman, resource_load_async2)
+
+TEST_F(resman_fixture, resource_load_async)
 {
-  resman rm;
-  rm.register_resource<dummy>();
+
+  rm.load_async<dummy>("./assets/test.png");
+  resource_ptr<dummy> rp = rm.get<dummy>("test.png");
+  ASSERT_TRUE(rp.is_valid());
+  ASSERT_TRUE(!rp->is_loaded());
+  bool condition_succeded = wait_until([&rp]() -> bool
+  {
+    //std::cout << "time passes" << "\n";
+    return rp->is_loaded();
+  },
+    2.f);//Max wait 2 seconds
+
+  ASSERT_TRUE(condition_succeded);
+
+}
+
+TEST_F(resman_fixture, resource_load_async2)
+{
 
   rm.load_async<dummy>("./assets/test.png");
   rm.load_async<dummy>("./assets/test2.png");
@@ -141,25 +155,6 @@ TEST(resman, resource_load_async2)
     return rp->is_loaded();
   },
     100.f);//Max wait 2 seconds
-
-  ASSERT_TRUE(condition_succeded);
-
-}
-TEST(resman, resource_load_async)
-{
-  resman rm;
-  rm.register_resource<texture, model, dummy>();
-
-  rm.load_async<dummy>("./assets/test.png");
-  resource_ptr<dummy> rp = rm.get<dummy>("test.png");
-  ASSERT_TRUE(rp.is_valid());
-  ASSERT_TRUE(!rp->is_loaded());
-  bool condition_succeded = wait_until([&rp]() -> bool
-  {
-    //std::cout << "time passes" << "\n";
-    return rp->is_loaded();
-  },
-    2.f);//Max wait 2 seconds
 
   ASSERT_TRUE(condition_succeded);
 

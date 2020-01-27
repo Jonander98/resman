@@ -14,6 +14,7 @@ resman::~resman()
   m_resources.clear();
   for (auto & w : m_workers)
     w.close_thread();
+
   m_workers.clear();
 }
 
@@ -57,6 +58,12 @@ void resman::set_log(const message_log & log)
  }
 
 #pragma region worker
+ resman::worker::~worker()
+ {
+   close_thread();
+   if (m_thread.joinable())
+     m_thread.join();
+ }
  void resman::worker::add_task(task fn)
  {
    if (m_thread.joinable())

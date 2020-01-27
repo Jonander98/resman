@@ -14,6 +14,8 @@ private://Private types
   class worker
   {
   public:
+    //Wait for the thread to finish execution
+    ~worker();
     //For calling: (obj->*(var)) (filepath)
     using load_fn = void (resource::*) (const filepath &);
     struct task
