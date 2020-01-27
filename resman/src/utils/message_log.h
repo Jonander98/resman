@@ -48,11 +48,15 @@ public:
   /*
   * Returns the current data stored on the log
   */
-  std::vector<char> get_log()const;
+  std::vector<char> get_data()const;
   /*
   * Prints to the console the current data stored on the log
   */
   void print()const;
+  /*
+  * Returns true if the log is empty
+  */
+  bool is_empty()const;
 private:
   /*
   * Returns a pointer to a memory block of size 's' 

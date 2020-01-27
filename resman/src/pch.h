@@ -12,6 +12,7 @@
 #include <map>
 #include <array>
 #include <queue>
+#include <list>
 //IO
 #include <iostream>
 //Others

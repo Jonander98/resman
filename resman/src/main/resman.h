@@ -10,12 +10,24 @@
 
 class resman
 {
+public://Public types
+  struct config
+  {
+    //Maximum number of threads allowed
+    u8 max_threads{ 4 };
+    /*
+    * Minimum number of resources that have to be in the queue of a thread to create a new one
+    * always respecting the maximum
+    */
+    u8 min_resources_to_fork{ 3 };
+  };
 private://Private types
   class worker
   {
   public:
     //Wait for the thread to finish execution
     ~worker();
+    worker() = default;
     //For calling: (obj->*(var)) (filepath)
     using load_fn = void (resource::*) (const filepath &);
     struct task
@@ -88,7 +100,11 @@ public:
   * Unloads all the resources
   */
   void unload_all();
-public:
+public://log and config
+  /*
+  * Sets the config of the resource manager
+  */
+  void set_config(config c);
   /*
   * Sets the log used to inform the user of possible problems
   */
@@ -129,15 +145,21 @@ private:
   * Finds between the available workers the one that has
   * the smaller workload (task)
   */
-  worker & find_best_worker();
+  worker * find_best_worker();
 
 private:
   //A map from type id to the corresponding resource container
   std::map<size_t, void*> m_resources;
   //The log for the errors
   message_log m_log;
-  //The ones loading resources asyncronously
-  std::vector<worker> m_workers = std::vector<worker>(2);//2 workers for now
+  /*
+  * The ones loading resources asyncronously
+  * A list is the selected data structure since we dont want to move
+  * mutexes and threads
+  */
+  std::list<worker> m_workers;
+  //The config of the resource manager(related with threads)
+  config m_config;
 };
 
 #include "resman.inl"

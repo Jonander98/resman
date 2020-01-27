@@ -32,6 +32,11 @@ void resman::unload_all()
   }
 }
 
+void resman::set_config(config c)
+{
+  m_config = c;
+}
+
 void resman::set_log(const message_log & log)
  {
    m_log = log;
@@ -42,19 +47,33 @@ void resman::set_log(const message_log & log)
    return m_log;
  }
 
- resman::worker & resman::find_best_worker()
+ resman::worker * resman::find_best_worker()
  {
-   size_t best_idx = 0;
-   size_t num_tasks = std::numeric_limits<size_t>::max();
-   for (size_t i = 0; i < m_workers.size(); ++i)
+   auto best_it = m_workers.begin();
+   size_t min_num_tasks = std::numeric_limits<size_t>::max();
+   for (auto it = m_workers.begin(); it != m_workers.end(); ++it)
    {
-     if (size_t n = m_workers[i].get_task_queue_size() < num_tasks)
+     size_t n = it->get_task_queue_size();
+     if (n < min_num_tasks)
      {
-       best_idx = i;
-       num_tasks = n;
+       best_it = it;
+       min_num_tasks = n;
      }
    }
-   return m_workers[best_idx];
+   //std::cout << "num_tasks: " << min_num_tasks << std::endl;
+   //std::cout << "num_workers: " << m_workers.size() << std::endl;
+   //Check if we should create anotherone
+   if (min_num_tasks > m_config.min_resources_to_fork && m_config.max_threads > m_workers.size())
+   {
+     m_workers.emplace_front();
+     best_it = m_workers.begin();
+   }
+   if (best_it == m_workers.end())
+   {
+     m_log.error("Loading: Async load has been requested, but config does not allow thread creation");
+     return nullptr;
+   }
+   return &(*best_it);
  }
 
 #pragma region worker
@@ -64,8 +83,11 @@ void resman::set_log(const message_log & log)
    if (m_thread.joinable())
      m_thread.join();
  }
+
  void resman::worker::add_task(task fn)
  {
+   std::lock_guard<std::mutex> lock(m_task_mutex);
+   m_tasks.push(fn);
    if (m_thread.joinable())
    {
      if (m_should_stop == true)
@@ -78,8 +100,6 @@ void resman::set_log(const message_log & log)
    {//Create one
      m_thread = std::thread(&worker::thread_loop, this);
    }
-   std::lock_guard<std::mutex> lock(m_task_mutex);
-   m_tasks.push(fn);
  }
 
  size_t resman::worker::get_task_queue_size() const

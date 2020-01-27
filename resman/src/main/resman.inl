@@ -179,7 +179,10 @@ inline void resman::internal_load(const filepath & fp, bool is_async)
     t.who = res_ptr.get();
     t.what = &resource_type::internal_load;
     t.how = fp;
-    find_best_worker().add_task(t);
+    worker * w = find_best_worker();
+    if (w == nullptr)
+      return;
+    w->add_task(t);
   }
   else
   {

@@ -33,19 +33,3 @@ struct resource_hash<texture>
 };
 
 
-
-class dummy : public resource
-{
-private:
-  bool load(const filepath &)override
-  {
-    using namespace std::chrono_literals;
-    std::this_thread::sleep_for(1s);
-    i32 i = 0;
-    for (i32 & el : ordered)
-      el = i++;
-    return true;
-  }
-  
-  std::array<i32, 80> ordered;
-};
