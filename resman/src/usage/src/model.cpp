@@ -6,7 +6,7 @@
 #include "usage/model.h"
 #include "utils/filepath.h"
 
-bool model::load(const file_path & path)
+bool model::load(const filepath & path)
 {
   //std::cout << "LOAD: model" << std::endl;
   (void)path;

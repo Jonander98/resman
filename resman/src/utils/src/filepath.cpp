@@ -6,13 +6,14 @@
 #include "pch.h"
 #include "utils/filepath.h"
 
-file_path::file_path(const str_t & path)
+filepath::filepath(const str_t & path)
   : m_fullpath(path)
 {
+  size_t pos = 0;
   //Normalize the path
   while(true)
   {
-    size_t pos = m_fullpath.find_first_of('\\');
+    pos = m_fullpath.find_first_of('\\', pos);
     if (pos == str_t::npos)
       break;
     m_fullpath[pos] = '/';
@@ -34,26 +35,26 @@ file_path::file_path(const str_t & path)
 
 }
 
-file_path::file_path(const char * path)
-  : file_path(str_t(path))
+filepath::filepath(const char * path)
+  : filepath(str_t(path))
 {}
 
-const str_t & file_path::get_fullpath() const
+const str_t & filepath::get_fullpath() const
 {
   return m_fullpath;
 }
 
-const str_t & file_path::get_extension() const
+const str_t & filepath::get_extension() const
 {
   return m_extension;
 }
 
-const str_t & file_path::get_name() const
+const str_t & filepath::get_name() const
 {
   return m_name;
 }
 
-const str_t file_path::get_full_name() const
+const str_t filepath::get_full_name() const
 {
   return m_name + m_extension;
 }

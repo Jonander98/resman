@@ -48,11 +48,15 @@ public:
   /*
   * Returns the current data stored on the log
   */
-  std::vector<char> get_log()const;
+  std::vector<char> get_data()const;
   /*
   * Prints to the console the current data stored on the log
   */
   void print()const;
+  /*
+  * Returns true if the log is empty
+  */
+  bool is_empty()const;
 private:
   /*
   * Returns a pointer to a memory block of size 's' 
@@ -63,7 +67,7 @@ private:
   */
   void push_message(const str_t &);
 private:
-  std::vector<i8> m_data;                   //The full log
+  std::vector<char> m_data;                 //The full log
   size_t m_log_offset{0};                   //An offset in m_data representing where the log ends
   message_flags m_ignored_messages{m_none}; //The message types to ignore
 };

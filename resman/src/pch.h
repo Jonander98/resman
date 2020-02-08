@@ -11,22 +11,26 @@
 #include <functional>
 #include <map>
 #include <array>
+#include <queue>
+#include <list>
 //IO
 #include <iostream>
 //Others
 #include <thread>
 #include <typeinfo>
+#include <chrono>
+#include <mutex>
 
 using f64 = double;
 using f32 = float;
-using i64 = long;
-using i32 = int;
-using i16 = short;
-using i8 = char;
-using u64 = unsigned long;
-using u32 = unsigned;
-using u16 = unsigned short;
-using u8 = unsigned char;
+using i64 = int64_t;
+using i32 = int32_t;
+using i16 = int16_t;
+using i8 = int8_t;
+using u64 = uint64_t;
+using u32 = uint32_t;
+using u16 = uint16_t;
+using u8 = uint8_t;
 
 using str_t = std::string;
 

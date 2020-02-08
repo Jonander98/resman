@@ -42,12 +42,12 @@ public:
 protected:
 
   //Override with the load of the resource
-  virtual bool load(const file_path&) = 0;
+  virtual bool load(const filepath&) = 0;
   //Option to control when a resource is unloaded apart from the destructor
   virtual void unload();
 private:
   //Wrapper around load to enable performing actions related with loading
-  void internal_load(const file_path&);
+  void internal_load(const filepath&);
   //Wrapper around unload to enable performing actions related with unloading
   void internal_unload();
 private:

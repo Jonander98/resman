@@ -11,7 +11,7 @@
 class texture : public resource
 {
 private:
-  bool load(const file_path &)override;
+  bool load(const filepath &)override;
   void unload()override;
 
   i32 foo;
@@ -31,3 +31,5 @@ struct resource_hash<texture>
     return std::hash<str_t>{}(st);
   }
 };
+
+

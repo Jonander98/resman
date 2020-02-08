@@ -46,7 +46,7 @@ void message_log::clear_keep_mem()
   m_log_offset = 0;
 }
 
-std::vector<char> message_log::get_log() const
+std::vector<char> message_log::get_data() const
 {
   std::vector<char> tmp(m_data.begin(), std::next(m_data.begin(), m_log_offset));
   tmp.push_back(0);
@@ -55,7 +55,12 @@ std::vector<char> message_log::get_log() const
 
 void message_log::print() const
 {
-  std::cout << get_log().data() << std::endl;
+  std::cout << get_data().data() << std::endl;
+}
+
+bool message_log::is_empty() const
+{
+  return m_data.empty();
 }
 
 char * message_log::get_space(size_t size)
