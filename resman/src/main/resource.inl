@@ -15,6 +15,7 @@ template<typename resource_type>
 inline resource_ptr<resource_type>::resource_ptr(const resource_ptr & rhs)
   : m_ptr(rhs.m_ptr), m_ref_count(rhs.m_ref_count)
 {
+  //One reference more
   if(m_ptr)
     (*m_ref_count)++;
 }
@@ -35,7 +36,7 @@ inline resource_ptr<resource_type>::resource_ptr(resource_type * ptr)
   : m_ptr(ptr)
 {
   if (ptr)
-  {
+  {//Start counting references
     m_ref_count = new i32(0);
     (*m_ref_count)++;
   }
@@ -58,6 +59,7 @@ template<typename resource_type>
 inline resource_ptr<resource_type> & resource_ptr<resource_type>::operator=(const resource_ptr & rhs)
 {
   remove_ownership();
+  //Copy both the pointer and the reference counter
   m_ptr = rhs.m_ptr;
   m_ref_count = rhs.m_ref_count;
   if (m_ptr)

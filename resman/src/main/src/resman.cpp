@@ -22,9 +22,11 @@ void resman::unload_all()
 {
   for (auto pair : m_resources)
   {
+    //Get the current container as a container of the parent resource class
     auto ct = reinterpret_cast<resource_container<resource>*>(pair.second);
     for (auto & in_pair : *ct)
     {
+      //Call the unload trough the virtual table
       in_pair.second->internal_unload();
       delete in_pair.second.get();
     }
@@ -60,8 +62,7 @@ void resman::set_log(const message_log & log)
        min_num_tasks = n;
      }
    }
-   //std::cout << "num_tasks: " << min_num_tasks << std::endl;
-   //std::cout << "num_workers: " << m_workers.size() << std::endl;
+   
    //Check if we should create anotherone
    if (min_num_tasks > m_config.min_resources_to_fork && m_config.max_threads > m_workers.size())
    {

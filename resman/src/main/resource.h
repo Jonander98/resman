@@ -95,8 +95,10 @@ private:
   //Removes the ownership from its pointed resource
   void remove_ownership();
 private:
-  i32 * m_ref_count;    //Number of active references to the pointed value
-  resource_type * m_ptr;//A pointer to the data
+  //Number of active references to the pointed value
+  i32 * m_ref_count;    
+  //A pointer to the data
+  resource_type * m_ptr;
 };
 
 #include "resource.inl"

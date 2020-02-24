@@ -75,6 +75,7 @@ inline void resman::unload(const str_t & st)
   auto it = ct->find(resource::compute_id<resource_type>(st));
   if (it != ct->end())
   {
+    //Tell the resource to unload. Always syncronous
     it->second->internal_unload();
     if(it->second.get_reference_count() > 0)
       m_log.info("unload: The resource was still in use");
@@ -97,7 +98,10 @@ inline void resman::unload_all_t()
   }
   for (auto & pair : *ct)
   {
+    //Unload each of the resources of the given type
     pair.second->internal_unload();
+    if (pair.second.get_reference_count() > 0)
+      m_log.info("unload: The resource was still in use");
     delete pair.second.get();
   }
   ct->clear();
@@ -119,6 +123,7 @@ inline void resman::register_resource()
 template <typename resource_type, typename resource_type2, typename ...args>
 inline void resman::register_resource()
 {
+  //Register recursively
   register_resource<resource_type>();
   register_resource<resource_type2, args...>();
 }
@@ -134,8 +139,10 @@ inline resman::resource_container<resource_type>* resman::get_resource_container
 {
   size_t id = typeid(resource_type).hash_code();
   auto it = m_resources.find(id);
-  return (it == m_resources.end()) ? nullptr : reinterpret_cast<resource_container<resource_type>*>(it->second);
-
+  if (it == m_resources.end())
+    return nullptr;
+  //Found
+  return reinterpret_cast<resource_container<resource_type>*>(it->second);
 }
 
 template<typename resource_type>
@@ -165,7 +172,7 @@ inline void resman::internal_load(const filepath & fp, bool is_async)
 
   //Create an storage for the resource
   resource::id_type res_id = resource::compute_id<resource_type>(fp.get_full_name());
-  auto & res_ptr = cont->try_emplace(res_id, resource_ptr<resource_type>()).first->second;
+  resource_ptr<resource_type>& res_ptr = cont->emplace(res_id, resource_ptr<resource_type>()).first->second;
 
   //Allocate the resource
   res_ptr = resource_ptr<resource_type>(new resource_type);
@@ -175,13 +182,21 @@ inline void resman::internal_load(const filepath & fp, bool is_async)
   //Start the load
   if (is_async)
   {
+    //Create the task
     worker::task t;
+    //This pointer for the function
     t.who = res_ptr.get();
+    //The function
     t.what = &resource_type::internal_load;
+    //The parameters of the fucntion
     t.how = fp;
     worker * w = find_best_worker();
+    
     if (w == nullptr)
+    {
+      m_log.warning("load: Cant load asyncronously. Check the configuration");
       return;
+    }
     w->add_task(t);
   }
   else
