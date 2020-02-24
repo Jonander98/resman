@@ -49,9 +49,13 @@ private://Private types
     //Function called by the thread to keep looking for tasks
     void thread_loop();
   private:
+    //All the tasks assigned to this worker
     std::queue<task> m_tasks;
+    //The thread used by the worker
     std::thread m_thread;
+    //If the thread should stop
     bool m_should_stop{ false };
+    //Mutex used to guard the task queue
     std::mutex m_task_mutex;
   };
   template <typename resource_type>

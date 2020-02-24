@@ -18,6 +18,7 @@ resource::id_type resource::get_id() const
 
 void resource::unload()
 {
+  //Nothing by default
 }
 
 void resource::internal_load(const filepath & fp)

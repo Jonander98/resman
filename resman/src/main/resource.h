@@ -51,8 +51,10 @@ private:
   //Wrapper around unload to enable performing actions related with unloading
   void internal_unload();
 private:
-  bool m_is_loaded{ false };  //If the resource is loaded or not
-  id_type m_id;               //Identification number for the resource
+  //If the resource is loaded or not
+  bool m_is_loaded{ false };  
+  //Identification number for the resource
+  id_type m_id;               
 };
 
 

@@ -7,3 +7,4 @@ X-Resource unloading
 -Resource manager status(loaded resources, unused resources...)
 X-Add a log for errors
 X-The resource_ptr keeps the reference count(shared_ptr)
+-Make the workers sleep or close them when there are no extra tasks

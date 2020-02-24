@@ -85,6 +85,7 @@ inline void resource_ptr<resource_type>::remove_ownership()
 {
   if (m_ptr == nullptr)
     return;
+  //Just remove a reference
   (*m_ref_count)--;
   if (*m_ref_count <= 0)
   {
