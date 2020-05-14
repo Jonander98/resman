@@ -12,27 +12,33 @@
 
 work_group::task work_group::request_next_task_ownership()
 {
+  //This will allow workers to not block betweent them, but it will block when cleaning is being made
+  std::shared_lock<std::shared_mutex> slock(m_cleaning_mutex);
   if (m_task_groups.empty())
     throw "No more tasks";
+  i32 local_group_idx = m_task_group_idx;
+  if (m_task_group_idx >= m_task_groups.size())
+    throw "No more tasks";
+
   i32 local_idx = m_task_idx++;
-  if (local_idx >= m_task_groups[m_task_group_idx].size())
+  if (local_idx >= m_task_groups[local_group_idx].size())
   {
-    m_task_group_idx++;
-    if (m_task_group_idx >= m_task_groups.size())
+    local_group_idx = ++m_task_group_idx;
+    if (local_group_idx >= m_task_groups.size())
       throw "No more tasks";
 
     m_task_idx = 1;
     local_idx = 0;
   }
-  m_num_tasks--;
-  return m_task_groups[m_task_group_idx][local_idx];
+  m_num_remaining_tasks--;
+  return m_task_groups[local_group_idx][local_idx];
 }
 
 void work_group::check_if_extra_worker_is_needed()
 {
   if (m_workers.empty())
   {//Check if it is the first one
-    if (m_num_tasks != 0)
+    if (m_num_remaining_tasks != 0)
     {
       m_workers.emplace_back(worker(*this));
       m_workers.back().activate();
@@ -52,7 +58,7 @@ void work_group::check_if_extra_worker_is_needed()
     //Decide if we want to close the inactive worker or reactivate it
 
     //Simulate we have one less to check if we need it
-    size_t tasks_per_thread = m_num_tasks / --num_workers;
+    size_t tasks_per_thread = m_num_remaining_tasks / --num_workers;
     if (tasks_per_thread > m_config.min_resources_to_fork && m_config.max_threads > num_workers)
     {
       it->activate();
@@ -69,14 +75,27 @@ void work_group::check_if_extra_worker_is_needed()
   while (true)
   {
 
-    size_t tasks_per_thread = m_num_tasks / num_workers;
+    size_t tasks_per_thread = m_num_remaining_tasks / m_workers.size();
 
     //Check if we should create a new worker
-    if (tasks_per_thread > m_config.min_resources_to_fork && m_config.max_threads > num_workers)
+    if (tasks_per_thread > m_config.min_resources_to_fork && m_config.max_threads > m_workers.size())
       m_workers.emplace_back(worker(*this));
     else
       break;
   }
+}
+
+void work_group::clean_finished_task()
+{
+  if (m_task_group_idx == 0)
+    return;
+  std::lock_guard<std::shared_mutex> lock(m_cleaning_mutex);
+
+  m_task_groups.erase(m_task_groups.begin(), std::next(m_task_groups.begin(), m_task_group_idx-1));
+  m_task_group_idx = 0;
+  m_num_total_tasks = 0;
+  for (const auto& cont : m_task_groups)
+    m_num_total_tasks += cont.size();
 }
 
 work_group::work_group(config cf)
@@ -91,17 +110,20 @@ work_group::~work_group()
 
 void work_group::add_task(task t)
 {
-  m_task_groups.push_back(std::vector<task>{t});
-  m_num_tasks++;
-  check_if_extra_worker_is_needed();
+  add_task(std::vector<task>{t});
 }
 
 void work_group::add_task(std::vector<task> tasks)
 {
   if (tasks.empty())
     return;
+  const u32 MAX_NUM_FINISHED_STORED_TASKS = 0;
+  if (m_num_total_tasks - m_num_remaining_tasks > MAX_NUM_FINISHED_STORED_TASKS)
+    clean_finished_task();
+
   m_task_groups.push_back(tasks);
-  m_num_tasks += tasks.size();
+  m_num_remaining_tasks += tasks.size();
+  m_num_total_tasks += tasks.size();
   check_if_extra_worker_is_needed();
 }
 

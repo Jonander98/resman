@@ -67,7 +67,7 @@ TEST_F(resman_fixture, resource_load_async2)
     //std::cout << "time passes" << "\n";
     return rp->is_loaded();
   },
-    10.f);//Max wait x seconds
+    15.f);//Max wait x seconds
 
 
   ASSERT_TRUE(condition_succeded);

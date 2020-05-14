@@ -19,6 +19,7 @@
 #include <typeinfo>
 #include <chrono>
 #include <mutex>
+#include <shared_mutex>
 #include <atomic>
 #include <functional>
 

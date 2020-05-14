@@ -62,17 +62,23 @@ private:
   task request_next_task_ownership();
   //Checks if an extra worker is needed due to the extra load and creates one if necessary
   void check_if_extra_worker_is_needed();
+  //Cleans the finished tasks from the vector. Should only be called when workers arent working
+  void clean_finished_task();
 private:
   //The index of the task that needs to be gathered
   std::atomic<i32> m_task_idx{0};
   //The indes of the task group we are processing
-  u32 m_task_group_idx{ 0 };
+  std::atomic<i32> m_task_group_idx{ 0 };
   //The number of tasks that are not done
-  size_t m_num_tasks{ 0 };
+  size_t m_num_remaining_tasks{ 0 };
+  //The number of tasks that are stored
+  size_t m_num_total_tasks{ 0 };
   //All the tasks that have been requested
   std::vector<std::vector<task>> m_task_groups;
   //All the workers on the work group. Using a list to avoid realocations
   std::list<worker> m_workers;
   //Config related with when we should create a new worker
   config m_config;
+  //Mutex used for cleaning tasks
+  std::shared_mutex m_cleaning_mutex;
 };
