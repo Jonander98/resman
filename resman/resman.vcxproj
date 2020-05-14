@@ -23,7 +23,7 @@
     <ProjectGuid>{F09673D8-C2F6-4477-A091-6F6082DD2289}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>resman</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -175,6 +175,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\main\work_group.h" />
     <ClInclude Include="src\tests\resman_tests_long.h" />
     <ClInclude Include="src\tests\resman_tests_short.h" />
     <ClInclude Include="src\tests\resource_tests.h" />
@@ -196,6 +197,7 @@
     <ClInclude Include="src\tests\resman_tests.h">
       <FileType>CppCode</FileType>
     </ClInclude>
+    <ClCompile Include="src\main\src\work_group.cpp" />
     <ClCompile Include="src\usage\src\model.cpp" />
     <ClCompile Include="src\usage\src\object.cpp" />
     <ClCompile Include="src\usage\src\texture.cpp" />

@@ -9,6 +9,7 @@
 
 bool texture::load(const filepath & path)
 {
+  (void)path;
   //std::cout << "LOAD: texture" << std::endl;
 
   return true;

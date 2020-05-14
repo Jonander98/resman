@@ -37,7 +37,7 @@ inline resource_ptr<resource_type>::resource_ptr(resource_type * ptr)
 {
   if (ptr)
   {//Start counting references
-    m_ref_count = new i32(0);
+    m_ref_count = new std::atomic<i32>(0);
     (*m_ref_count)++;
   }
 }

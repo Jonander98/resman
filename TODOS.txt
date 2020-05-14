@@ -1,10 +1,12 @@
 X-Create unique id for each resource. It will be an unsigned integer, but the compute_id function can be overriden by the parent class.
 X-Create an storage for the resources and how to organize them
 -Memory allocator for the resources
--Load resources asyncronously
--Fix a maximum number of threads and distribute the work load
+X-Load resources asyncronously
+X-Fix a maximum number of threads and distribute the work load
 X-Resource unloading
 -Resource manager status(loaded resources, unused resources...)
 X-Add a log for errors
 X-The resource_ptr keeps the reference count(shared_ptr)
 -Make the workers sleep or close them when there are no extra tasks
+X-Make resource_ptr thread safe
+-Make the workers read from the same queue and try to reduce the mutex amount

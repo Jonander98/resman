@@ -12,11 +12,12 @@ resman::~resman()
   for (auto pair : m_resources)
     delete pair.second;
   m_resources.clear();
-  for (auto & w : m_workers)
-    w.close_thread();
-
-  m_workers.clear();
 }
+
+resman::resman(config cf)
+  : m_config(cf), m_work_group(work_group::config{cf.max_threads, cf.min_resources_to_fork})
+{}
+
 
 void resman::unload_all()
 {
@@ -48,8 +49,8 @@ void resman::set_log(const message_log & log)
  {
    return m_log;
  }
-
- resman::worker * resman::find_best_worker()
+ /*
+ resman::work_group * resman::find_best_worker()
  {
    auto best_it = m_workers.begin();
    size_t min_num_tasks = std::numeric_limits<size_t>::max();
@@ -77,68 +78,4 @@ void resman::set_log(const message_log & log)
      return nullptr;
    }
    return &(*best_it);
- }
-
-#pragma region worker
- resman::worker::~worker()
- {
-   //Wait until the last task is done
-   close_thread();
-   if (m_thread.joinable())
-     m_thread.join();
- }
-
- void resman::worker::add_task(task fn)
- {
-   std::lock_guard<std::mutex> lock(m_task_mutex);
-   m_tasks.push(fn);
-   //Check if we already have a thread
-   if (m_thread.joinable())
-   {
-     //Check if stop had been requested for that thread
-     if (m_should_stop == true)
-     {//Close and create a new one since it seems like we have to keep working
-       //We wont just change the boolean since we might get into a race condition
-       m_thread.join();
-       m_should_stop = false;
-       m_thread = std::thread(&worker::thread_loop, this);
-     }
-   }
-   else
-   {//Create one
-     m_should_stop = false;
-     m_thread = std::thread(&worker::thread_loop, this);
-   }
- }
-
- size_t resman::worker::get_task_queue_size() const
- {
-   return m_tasks.size();
- }
-
- void resman::worker::close_thread()
- {
-   m_should_stop = true;
- }
-
- void resman::worker::thread_loop()
- {
-   //Fetch tasks until we are asked to stop
-   while (m_should_stop == false)
-   {
-     if (m_tasks.empty())
-       continue;
-     //Get the tasks safely
-     task cur;
-     {
-       std::lock_guard<std::mutex> lock(m_task_mutex);
-       cur = m_tasks.front();
-     }
-     //call the load
-     (cur.who->*(cur.what))(cur.how);
-     //Remove the task from the queue safely
-     std::lock_guard<std::mutex> lock(m_task_mutex);
-     m_tasks.pop();
-   }
- }
-#pragma endregion
+ }*/

@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "resource.h"
 #include "utils/message_log.h"
+#include "work_group.h"
 
 class resman
 {
@@ -22,48 +23,12 @@ public://Public types
     u8 min_resources_to_fork{ 3 };
   };
 private://Private types
-  class worker
-  {
-  public:
-    //Wait for the thread to finish execution
-    ~worker();
-    worker() = default;
-    //For calling: (obj->*(var)) (filepath)
-    using load_fn = void (resource::*) (const filepath &);
-    struct task
-    {
-      //object
-      resource * who;
-      //function
-      load_fn what;
-      //parameters
-      filepath how;
-    };
-    //Adds a task to the queue
-    void add_task(task fn);
-    //Returns the number of tasks
-    size_t get_task_queue_size()const;
-    //Closes the thread of the worker
-    void close_thread();
-  private:
-    //Function called by the thread to keep looking for tasks
-    void thread_loop();
-  private:
-    //All the tasks assigned to this worker
-    std::queue<task> m_tasks;
-    //The thread used by the worker
-    std::thread m_thread;
-    //If the thread should stop
-    bool m_should_stop{ false };
-    //Mutex used to guard the task queue
-    std::mutex m_task_mutex;
-  };
   template <typename resource_type>
   using resource_container = std::map<resource::id_type, resource_ptr<resource_type>>;
 public:
   //Makes sure all the resources get unloaded
   ~resman();
-  resman() = default;
+  resman(config = config());
   resman(const resman &) = delete;
   resman & operator=(const resman &) = delete;
 public:
@@ -145,23 +110,14 @@ private:
   template <typename resource_type>
   void internal_load(const filepath &, bool is_async);
 
-  /*
-  * Finds between the available workers the one that has
-  * the smaller workload (task)
-  */
-  worker * find_best_worker();
 
 private:
   //A map from type id to the corresponding resource container
   std::map<size_t, void*> m_resources;
   //The log for the errors
   message_log m_log;
-  /*
-  * The ones loading resources asyncronously
-  * A list is the selected data structure since we dont want to move
-  * mutexes and threads
-  */
-  std::list<worker> m_workers;
+  //The work group that will load asyncronously
+  work_group m_work_group;
   //The config of the resource manager(related with threads)
   config m_config;
 };

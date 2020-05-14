@@ -8,7 +8,6 @@
 //Containers
 #include <string>
 #include <vector>
-#include <functional>
 #include <map>
 #include <array>
 #include <queue>
@@ -20,6 +19,8 @@
 #include <typeinfo>
 #include <chrono>
 #include <mutex>
+#include <atomic>
+#include <functional>
 
 using f64 = double;
 using f32 = float;

@@ -183,21 +183,9 @@ inline void resman::internal_load(const filepath & fp, bool is_async)
   if (is_async)
   {
     //Create the task
-    worker::task t;
-    //This pointer for the function
-    t.who = res_ptr.get();
-    //The function
-    t.what = &resource_type::internal_load;
-    //The parameters of the fucntion
-    t.how = fp;
-    worker * w = find_best_worker();
-    
-    if (w == nullptr)
-    {
-      m_log.warning("load: Cant load asyncronously. Check the configuration");
-      return;
-    }
-    w->add_task(t);
+    work_group::task t = std::bind(&resource_type::internal_load, res_ptr.get(), fp);
+
+    m_work_group.add_task(t);
   }
   else
   {

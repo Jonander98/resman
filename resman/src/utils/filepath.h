@@ -9,14 +9,12 @@
 class filepath
 {
 public:
-  //Creates an empty filepath
-  filepath() = default;
   /**
   * @brief  Creates a filepath from string
   * @param  the path
   */
   filepath(const str_t & path);
-  filepath(const char * path);
+  filepath(const char * path = "");
   /**
   * @brief  Returns the full path
   * @return the full path
