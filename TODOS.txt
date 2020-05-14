@@ -10,3 +10,4 @@ X-The resource_ptr keeps the reference count(shared_ptr)
 -Make the workers sleep or close them when there are no extra tasks
 X-Make resource_ptr thread safe
 -Make the workers read from the same queue and try to reduce the mutex amount
+-Dynamic cleanup of tasks on workgroups to avoid having many finished tasks stored
