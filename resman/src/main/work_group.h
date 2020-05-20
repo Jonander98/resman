@@ -31,6 +31,9 @@ private:
     worker(work_group&);
     //Join the thread
     ~worker();
+    //No copy
+    worker(const worker&) = delete;
+    worker & operator=(const worker &) = delete;
     //Move constructor
     worker(worker&&);
     //Makes the worker start working again if it was closed
@@ -66,9 +69,9 @@ private:
   void clean_finished_task();
 private:
   //The index of the task that needs to be gathered
-  std::atomic<i32> m_task_idx{0};
+  std::atomic<u32> m_task_idx{ 0 };
   //The indes of the task group we are processing
-  std::atomic<i32> m_task_group_idx{ 0 };
+  std::atomic<u32> m_task_group_idx{ 0 };
   //The number of tasks that are not done
   size_t m_num_remaining_tasks{ 0 };
   //The number of tasks that are stored

@@ -18,6 +18,6 @@
 
 #Exclude folders
 
-./bin
+/bin
 .vs
 /resman/obj

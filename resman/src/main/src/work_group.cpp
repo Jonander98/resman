@@ -15,17 +15,19 @@ work_group::task work_group::request_next_task_ownership()
   //This will allow workers to not block betweent them, but it will block when cleaning is being made
   std::shared_lock<std::shared_mutex> slock(m_cleaning_mutex);
   if (m_task_groups.empty())
-    throw "No more tasks";
-  i32 local_group_idx = m_task_group_idx;
+    return task();
+  //Gather the group index safely
+  u32 local_group_idx = m_task_group_idx;
   if (m_task_group_idx >= m_task_groups.size())
-    throw "No more tasks";
+    return task();
 
-  i32 local_idx = m_task_idx++;
+  //Gather the task index safely
+  u32 local_idx = m_task_idx++;
   if (local_idx >= m_task_groups[local_group_idx].size())
   {
     local_group_idx = ++m_task_group_idx;
     if (local_group_idx >= m_task_groups.size())
-      throw "No more tasks";
+      return task();
 
     m_task_idx = 1;
     local_idx = 0;
@@ -40,7 +42,7 @@ void work_group::check_if_extra_worker_is_needed()
   {//Check if it is the first one
     if (m_num_remaining_tasks != 0)
     {
-      m_workers.emplace_back(worker(*this));
+      m_workers.emplace_back(std::move(worker(*this)));
       m_workers.back().activate();
     }
     return;
@@ -171,22 +173,23 @@ bool work_group::worker::is_active()
 void work_group::worker::thread_loop()
 {
   //Fetch tasks until we cant find new ones
-  while (true)
+  while (!m_closed)
   {
-    try
-    {
-      //Get the tasks safely
-      task cur = m_work_group.request_next_task_ownership();
+    //Get the tasks safely
+    task cur = m_work_group.request_next_task_ownership();
 
+    if (cur != nullptr)
+    {
       //call the load
       cur();
-
     }
-    catch (const char *)
-    {//Not tasks remaining
+    else
+    {
+      //Not tasks remaining
       m_closed = true;
-      return;
     }
+    
+    
   }
 }
 
