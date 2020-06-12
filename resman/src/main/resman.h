@@ -9,6 +9,7 @@
 #include "utils/message_log.h"
 #include "work_group.h"
 
+
 class resman
 {
 public://Public types
@@ -82,6 +83,10 @@ public://log and config
   * Returns the log in its current status
   */
   const message_log & get_log()const;
+  /*
+  * Prints information about the current resource manager state to the log
+  */
+  const message_log& get_resource_manager_status();
 public:
   //Registers a resource type
   template <typename resource_type>

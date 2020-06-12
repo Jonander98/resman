@@ -87,3 +87,20 @@ TEST_F(resman_fixture, resource_unload_all)
 
   //rm.get_log().print();
 }
+
+TEST_F(resman_fixture, resource_status)
+{
+  rm.load<texture>("./assets/test.png");
+  rm.load<texture>("./assets/test2.png");
+  rm.load<texture>("./assets/test3.png");
+  rm.load<model>("./assets/test.obj");
+  
+  rm.get<texture>("test.png");
+  auto use = rm.get<texture>("test2.png");
+
+  auto log = rm.get_resource_manager_status();
+
+  log.print();
+
+  //rm.get_log().print();
+}

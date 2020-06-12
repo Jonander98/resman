@@ -52,9 +52,11 @@ private:
   void internal_unload();
 private:
   //If the resource is loaded or not
-  bool m_is_loaded{ false };  
+  bool m_is_loaded{ false };
+  //If the resource has been used at some point
+  bool m_any_use{ false };
   //Identification number for the resource
-  id_type m_id;               
+  id_type m_id;
 };
 
 

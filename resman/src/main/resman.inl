@@ -26,6 +26,7 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
     return ret_ptr;
   }
   //Found
+  it->second->m_any_use = true;
   return it->second;
 }
 
@@ -44,8 +45,11 @@ inline std::vector<resource_ptr<resource_type>> resman::get_all_t()
   std::vector<resource_ptr<resource_type>> ret;
   ret.reserve(cont_ptr->size());
   //Fill it with all the resources
-  for (auto & pair : *cont_ptr)
+  for (auto& pair : *cont_ptr)
+  {
+    pair.second->m_any_use = true;
     ret.push_back(pair.second);
+  }
 
   return ret;
 }
