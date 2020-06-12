@@ -78,3 +78,36 @@ void resman::set_log(const message_log & log)
 
    return m_log;
  }
+
+
+ void resman::save_to_file(const filepath & fp, bool only_ever_used) const
+ {
+   std::ofstream file;
+   file.open(fp.get_fullpath());
+   if (!file.is_open())
+     return;
+
+   std::stringstream buff;
+   auto push_resource = [&buff](size_t type_id, const filepath & path)
+   {
+     buff << type_id << ' ' << path.get_fullpath() << '\n';
+   };
+
+   for (auto pair : m_resources)
+   {
+     //Get the current container as a container of the parent resource class
+     auto ct = reinterpret_cast<resource_container<resource>*>(pair.second);
+     for (auto& in_pair : *ct)
+     {
+       if (only_ever_used)
+       {
+         if (in_pair.second->m_any_use)
+           push_resource(pair.first, in_pair.second->m_path);
+       }
+       else
+         push_resource(pair.first, in_pair.second->m_path);
+     }
+   }
+   file << buff.str();
+ }
+

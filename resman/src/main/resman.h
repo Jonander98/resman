@@ -86,7 +86,19 @@ public://log and config
   /*
   * Prints information about the current resource manager state to the log
   */
-  const message_log& get_resource_manager_status();
+  const message_log & get_resource_manager_status();
+  /*
+  * Saves the current status of the resource manager to a file.
+  * only_ever_used: if true, only resources that have been used at some point will be saved
+  */
+  void save_to_file(const filepath &, bool only_ever_used = false)const;
+  /*
+  * Loads a resourcemanager status from file. All the loaded resources are unloaded
+  * The template parameters are the types that want to be loaded from the file. If a type is not provided
+  * and it is found on the file, it is ignored
+  */
+  template<typename ...resource_types>
+  void from_file(const filepath&);
 public:
   //Registers a resource type
   template <typename resource_type>
@@ -107,6 +119,14 @@ private:
   //Performs all the static checks for all the structural requirements a resource must meet
   template <typename resource_type>
   constexpr void check_resource_type();
+  /*
+  * Used for resource loading from file. It loads the resource if the id
+  * matches with any of the types. Otherwise, nothing happens
+  */
+  template <typename resource_type, typename resource_type2, typename ...args>
+  void load_if_same_type(size_t id, const filepath& fp);
+  template<typename resource_type>
+  void load_if_same_type(size_t id, const filepath& fp);
 
   /*
   * Loads a resource of the given type from the given path.
@@ -115,11 +135,10 @@ private:
   template <typename resource_type>
   void internal_load(const filepath &, bool is_async);
 
-
 private:
   //A map from type id to the corresponding resource container
   std::map<size_t, void*> m_resources;
-  //The log for the errors
+  //The log for the messages
   message_log m_log;
   //The work group that will load asyncronously
   work_group m_work_group;

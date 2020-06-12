@@ -94,7 +94,7 @@ TEST_F(resman_fixture, resource_status)
   rm.load<texture>("./assets/test2.png");
   rm.load<texture>("./assets/test3.png");
   rm.load<model>("./assets/test.obj");
-  
+
   rm.get<texture>("test.png");
   auto use = rm.get<texture>("test2.png");
 
@@ -103,4 +103,18 @@ TEST_F(resman_fixture, resource_status)
   log.print();
 
   //rm.get_log().print();
+}
+
+TEST_F(resman_fixture, resource_save_to_file_then_load)
+{
+  rm.load<texture>("./assets/test.png");
+  rm.load<texture>("./assets/test2.png");
+  rm.load<texture>("./assets/test3.png");
+  rm.load<model>("./assets/test.obj");
+
+  rm.save_to_file("./saved_resources.reslist");
+  rm.from_file<texture, model>("./saved_resources.reslist");
+
+  ASSERT_TRUE(rm.get<texture>("test.png").is_valid());
+
 }

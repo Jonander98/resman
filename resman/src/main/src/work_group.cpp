@@ -42,8 +42,8 @@ void work_group::check_if_extra_worker_is_needed()
   {//Check if it is the first one
     if (m_num_remaining_tasks != 0)
     {
-      m_workers.emplace_back(std::move(worker(*this)));
-      m_workers.back().activate();
+      m_workers.emplace_back(std::move(std::make_unique<worker>(*this)));
+      m_workers.back()->activate();
     }
     return;
   }
@@ -52,18 +52,19 @@ void work_group::check_if_extra_worker_is_needed()
 
   for (auto it = m_workers.begin(); it != m_workers.end();)
   {
-    if (it->is_active())
+    const auto & ptr = *it;
+    if (ptr->is_active())
     {
       ++it;
       continue;
     }
     //Decide if we want to close the inactive worker or reactivate it
-
+    
     //Simulate we have one less to check if we need it
     size_t tasks_per_thread = m_num_remaining_tasks / --num_workers;
     if (tasks_per_thread > m_config.min_resources_to_fork && m_config.max_threads > num_workers)
     {
-      it->activate();
+      ptr->activate();
       ++num_workers;
       ++it;
       //Not breaking here to activate all the inactive workers, but we are not removing any
@@ -76,12 +77,11 @@ void work_group::check_if_extra_worker_is_needed()
 
   while (true)
   {
-
     size_t tasks_per_thread = m_num_remaining_tasks / m_workers.size();
 
     //Check if we should create a new worker
     if (tasks_per_thread > m_config.min_resources_to_fork && m_config.max_threads > m_workers.size())
-      m_workers.emplace_back(worker(*this));
+      m_workers.emplace_back(std::make_unique<worker>(*this));
     else
       break;
   }
@@ -165,7 +165,7 @@ void work_group::worker::activate()
   }
 }
 
-bool work_group::worker::is_active()
+bool work_group::worker::is_active()const
 {
   return !m_closed;
 }

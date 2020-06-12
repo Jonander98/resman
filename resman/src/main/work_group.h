@@ -39,7 +39,7 @@ private:
     //Makes the worker start working again if it was closed
     void activate();
     //Returns true if the worker is loading something
-    bool is_active();
+    bool is_active()const;
   private:
     //Function called by the thread to keep looking for tasks
     void thread_loop();
@@ -79,7 +79,7 @@ private:
   //All the tasks that have been requested
   std::vector<std::vector<task>> m_task_groups;
   //All the workers on the work group. Using a list to avoid realocations
-  std::list<worker> m_workers;
+  std::vector<std::unique_ptr<worker>> m_workers;
   //Config related with when we should create a new worker
   config m_config;
   //Mutex used for cleaning tasks

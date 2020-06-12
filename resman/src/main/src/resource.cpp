@@ -25,6 +25,7 @@ void resource::internal_load(const filepath & fp)
 {
   load(fp);
   m_is_loaded = true;
+  m_path = fp;
 }
 
 void resource::internal_unload()

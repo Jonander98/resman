@@ -9,6 +9,14 @@
 filepath::filepath(const str_t & path)
   : m_fullpath(path)
 {
+  const size_t nullendpos = m_fullpath.find_first_of('\0');
+  if (nullendpos != str_t::npos)
+  {//We have null chars at the end
+    m_fullpath.erase(std::next(m_fullpath.begin(), nullendpos), m_fullpath.end());
+  }
+
+
+
   size_t pos = 0;
   //Normalize the path
   while(true)

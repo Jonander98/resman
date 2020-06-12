@@ -57,6 +57,8 @@ private:
   bool m_any_use{ false };
   //Identification number for the resource
   id_type m_id;
+  //The path from which the resource has been loaded
+  filepath m_path;
 };
 
 

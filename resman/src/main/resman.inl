@@ -17,8 +17,8 @@ inline resource_ptr<resource_type> resman::get(const str_t & st)
     m_log.warning("get: The resource is not registered");
     return ret_ptr;
   }
-
-  auto it = ct->find(resource::compute_id<resource_type>(st));
+  resource::id_type id = resource::compute_id<resource_type>(st);
+  auto it = ct->find(id);
   if (it == ct->end())
   {
     //Resource not found
@@ -53,6 +53,65 @@ inline std::vector<resource_ptr<resource_type>> resman::get_all_t()
 
   return ret;
 }
+
+
+template <typename resource_type, typename resource_type2, typename ...args>
+void resman::load_if_same_type(size_t id, const filepath& fp)
+{
+  if (typeid(resource_type).hash_code() == id)
+  {
+    //Add it
+    load<resource_type>(fp);
+  }
+  else
+    load_if_same_type<resource_type2, args...>(id, fp);
+
+}
+template <typename resource_type>
+void resman::load_if_same_type(size_t id, const filepath& fp)
+{
+  if (typeid(resource_type).hash_code() == id)
+  {
+    //Add it
+    load<resource_type>(fp);
+  }
+}
+
+template<typename ...resource_types>
+void resman::from_file(const filepath& list_path)
+{
+  static_assert(sizeof...(resource_types) != 0, "Cant load from file if no types were given");
+  std::ifstream file;
+  file.open(list_path.get_fullpath());
+
+  if (!file.is_open())
+    return;
+
+  unload_all();
+
+  register_resource<resource_types...>();
+
+  std::array<char, 200> buff;
+  std::array<char, 1> separators{ ' ' };
+
+  while (!file.eof())
+  {
+    buff.fill(0);
+    file.getline(buff.data(), buff.size());
+    //Parse line
+    auto it = std::find_first_of(buff.begin(), buff.end(), separators.begin(), separators.end());
+    if (it == buff.end())
+      continue;//FILE WAS MODIFIED OR NOT WELL SAVED
+
+    size_t id = std::stoull(buff.data());
+    filepath fp(std::string(++it, buff.end()));
+
+    load_if_same_type<resource_types...>(id, fp);
+
+  }
+  file.close();
+}
+
 
 template<typename resource_type>
 inline void resman::load(const filepath & fp)
