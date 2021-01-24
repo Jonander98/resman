@@ -22,6 +22,7 @@
 #include <shared_mutex>
 #include <atomic>
 #include <functional>
+#include <algorithm>
 
 using f64 = double;
 using f32 = float;
