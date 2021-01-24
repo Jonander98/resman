@@ -17,12 +17,13 @@ protected:
   class dummy : public resource
   {
   private:
-    bool load(const filepath &)override
+    bool load(const filepath & path)override
     {
       std::this_thread::sleep_for(std::chrono::seconds(delay));
       i32 i = 0;
       for (i32 & el : ordered)
         el = i++;
+      XMESSAGE("Loaded Dummy with path ", path.get_name());
       return true;
     }
     std::array<i32, 80> ordered;

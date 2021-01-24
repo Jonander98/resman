@@ -5,6 +5,8 @@
 #include "pch.h"
 #include "main/resman.h"
 
+using work_scheduling::work_group;
+
 resman::~resman()
 {
   m_work_group.stop_execution();
@@ -73,7 +75,7 @@ void resman::set_log(const message_log & log)
 
    m_log.info(
      "Loaded resource count: " + std::to_string(resource_count) + '\n' +
-     "Never unused resource count: " + std::to_string(never_used_resource_count) + '\n' +
+     "Never used resource count: " + std::to_string(never_used_resource_count) + '\n' +
      "Currently unused resource count: " + std::to_string(unused_resource_count));
 
    return m_log;
