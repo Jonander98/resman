@@ -141,7 +141,7 @@ private:
   //The log for the messages
   message_log m_log;
   //The work group that will load asyncronously
-  work_group m_work_group;
+  work_scheduling::work_group m_work_group;
   //The config of the resource manager(related with threads)
   config m_config;
 };

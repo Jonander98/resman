@@ -246,7 +246,7 @@ inline void resman::internal_load(const filepath & fp, bool is_async)
   if (is_async)
   {
     //Create the task
-    work_group::task t = std::bind(&resource_type::internal_load, res_ptr.get(), fp);
+    work_scheduling::task t = std::bind(&resource_type::internal_load, res_ptr.get(), fp);
 
     m_work_group.add_task(t);
   }
