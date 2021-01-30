@@ -93,6 +93,9 @@ namespace work_scheduling
   {
     //Update notification on selected subroutines
     m_subroutines.m_single.m_cleanup->notify_if_condition_met();
+    //We might have not moved when adding a task because we already had many tasks in the shared pool,
+    //So we notify here too
+    m_subroutines.m_single.m_task_moving->notify_if_condition_met();
   }
 
   void work_group::on_task_moved_to_shared_pool(size_t num_moved_tasks)

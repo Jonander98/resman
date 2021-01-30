@@ -59,7 +59,7 @@ namespace work_scheduling
   }
   void task_moving_subroutine::on_condition_met()
   {
-    std::lock_guard<std::mutex> lock(m_input_task_mutex);
+    std::scoped_lock<std::mutex> lock(m_input_task_mutex);
     m_last_move_size = m_data.m_input.size();
     std::move(m_data.m_input.begin(), m_data.m_input.end(), std::back_inserter(m_data.m_output));
     m_data.m_input.clear();

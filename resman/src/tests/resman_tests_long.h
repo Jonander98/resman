@@ -90,6 +90,7 @@ TEST_F(resman_fixture, resource_load_async_stress)
   rm.set_config(c);
 
   constexpr i32 NUM_TASKS = 10000;
+  using fast_dummy = load_1ms;
 
   for (i32 i = 0; i < NUM_TASKS; ++i)
   {
