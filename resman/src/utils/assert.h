@@ -22,20 +22,29 @@ void print(...);
 #define __STRINGIZE__1(x) #x
 #define __STRINGIZE__2(x) __STRINGIZE__1(x)
 #define __LOCATION__ __FILE__ " : " __STRINGIZE__2(__LINE__)
-#ifdef _DEBUG
+
+
 
 #define XASSERT(what) assert(what, #what, __LOCATION__)
 #define XASSERTMSG(what, ...) assert(what, #what, __LOCATION__, __VA_ARGS__)
 #define XERROR(what) {std::cerr << "Error: " << what; XBREAK(); throw std::runtime_error("Error at " __LOCATION__); }
+
+#ifdef _DEBUG
+#define ENABLE_PRINTS
+
 #define XWASTECHECKCODE_TRUE(what) what
 #define XWASTECHECKCODE_FALSE(what) what
+#ifdef ENABLE_PRINTS
 #define XMESSAGE(...) log(std::cout, __VA_ARGS__)
+#else
+#define XMESSAGE(...) (void) __VA_ARGS__
+#endif // ENABLE_PRINTS
 
 #else
-#define XASSERT(what)
-#define XASSERTMSG(what, ...)
-#define XERROR(what)
+//#define XASSERT(what)
+//#define XASSERTMSG(what, ...)
+//#define XERROR(what)
 #define XWASTECHECKCODE_TRUE(what) true
 #define XWASTECHECKCODE_FALSE(what) false
-#define XMESSAGE(...) (void) __VA_ARGS__
+#define XMESSAGE(...)
 #endif // _DEBUG

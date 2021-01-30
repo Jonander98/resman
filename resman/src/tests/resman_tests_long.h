@@ -27,25 +27,29 @@ bool wait_until(const std::function<bool()> & cond, f32 max_seconds)
 }
 
 
-//TEST_F(resman_fixture, resource_load_async)
-//{
-//  using load_t = dummy<0>;//load_1s;
-//  rm.register_resource<load_t>();
-//  rm.load_async<load_t>("./assets/test.png");
-//  resource_ptr<load_t> rp = rm.get<load_t>("test.png");
-//  ASSERT_TRUE(rp.is_valid());
-//  ASSERT_TRUE(!rp->is_loaded());
-//  bool condition_succeded = wait_until([&rp]() -> bool
-//  {
-//    //std::cout << "time passes" << "\n";
-//    return rp->is_loaded();
-//  },
-//    2.f);//Max wait 2 seconds
-//
-//  ASSERT_TRUE(condition_succeded);
-//
-//}
+#if 0
+TEST_F(resman_fixture, resource_load_async)
+{
+  using load_t = load_1s;
+  rm.register_resource<load_t>();
+  rm.load_async<load_t>("./assets/test.png");
+  resource_ptr<load_t> rp = rm.get<load_t>("test.png");
+  ASSERT_TRUE(rp.is_valid());
+  ASSERT_TRUE(!rp->is_loaded());
+  bool condition_succeded = wait_until([&rp]() -> bool
+  {
+    //std::cout << "time passes" << "\n";
+    return rp->is_loaded();
+  },
+    2.f);//Max wait 2 seconds
 
+  ASSERT_TRUE(condition_succeded);
+  XMESSAGE("FINISHED_TEST");
+
+}
+#endif
+
+#if 0
 TEST_F(resman_fixture, resource_load_async2)
 {
   resman::config c;
@@ -75,3 +79,44 @@ TEST_F(resman_fixture, resource_load_async2)
   ASSERT_TRUE(condition_succeded);
 
 }
+#endif
+
+#if 1
+TEST_F(resman_fixture, resource_load_async_stress)
+{
+  resman::config c;
+  c.max_threads = 10;
+  c.min_resources_to_fork = 10;
+  rm.set_config(c);
+
+  constexpr i32 NUM_TASKS = 10000;
+
+  for (i32 i = 0; i < NUM_TASKS; ++i)
+  {
+    rm.load_async<fast_dummy>(std::to_string(i));
+  }
+
+  resource_ptr<fast_dummy> rp = rm.get<fast_dummy>(std::to_string(NUM_TASKS - 1));
+
+  rm.get_log().print();
+  ASSERT_TRUE(rp.is_valid());
+  //ASSERT_TRUE(!rp->is_loaded());
+  bool condition_succeded = wait_until([this]() -> bool
+  {
+    auto all = rm.get_all_t<fast_dummy>();
+    for (auto ptr : all)
+    {
+      if (!ptr->is_loaded())
+        return false;
+    }
+    //std::cout << "time passes" << "\n";
+    return true;
+  },
+    300.f);//Max wait x seconds
+
+  rm.get_resource_manager_status().print();
+
+  ASSERT_TRUE(condition_succeded);
+
+}
+#endif

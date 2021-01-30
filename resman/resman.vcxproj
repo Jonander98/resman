@@ -185,6 +185,7 @@
   <ItemGroup>
     <ClInclude Include="src\main\worker.h" />
     <ClInclude Include="src\main\work_group.h" />
+    <ClInclude Include="src\main\subroutine.h" />
     <ClInclude Include="src\main\work_scheduling.h" />
     <ClInclude Include="src\tests\resman_tests_long.h" />
     <ClInclude Include="src\tests\resman_tests_short.h" />
@@ -210,6 +211,7 @@
     </ClInclude>
     <ClCompile Include="src\main\src\worker.cpp" />
     <ClCompile Include="src\main\src\work_group.cpp" />
+    <ClCompile Include="src\main\src\subroutine.cpp" />
     <ClCompile Include="src\usage\src\model.cpp" />
     <ClCompile Include="src\usage\src\object.cpp" />
     <ClCompile Include="src\usage\src\texture.cpp" />
@@ -232,6 +234,7 @@
     <None Include="src\main\resource.inl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="src\main\subroutine.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

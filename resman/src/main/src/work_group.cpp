@@ -12,18 +12,39 @@ namespace work_scheduling
 {
   work_group::work_group(config cf)
     : m_config(cf)
-    , m_background_thread(&work_group::background_thread_loop, this)
   {
+    {
+      cleanup_data data
+      {
+         m_shared.m_task_groups,
+         m_shared.m_task_group_idx
+      };
+      m_subroutines.m_single.m_cleanup = std::make_unique<cleanup_subroutine>(data, m_shared.m_task_group_changing_mutex);
+    }
+    {
+      task_moving_data data
+      {
+         m_shared.m_input_tasks,
+         m_shared.m_task_groups,
+         m_shared.m_task_group_idx,
+         *this
+      };
+      m_subroutines.m_single.m_task_moving = std::make_unique<task_moving_subroutine>(data, m_shared.m_task_group_changing_mutex, m_shared.m_input_task_mutex);
+    }
+
+    for (auto& sub : m_subroutines.m_all)
+    {
+      sub->start();
+    }
   }
 
   work_group::~work_group()
   {
-    stop_execution();
+    XMESSAGE("Destroying Workgroup");
   }
 
   void work_group::add_task(task t)
   {
-    //TODO: Merge short task vectors?
     XMESSAGE("Adding a task");
     add_task(std::vector<task>{t});
   }
@@ -33,49 +54,85 @@ namespace work_scheduling
     if (tasks.empty())
       return;
 
-    if (m_shared.m_read.m_task_groups.capacity() == m_shared.m_read.m_task_groups.size())
     {
-      //We will resize, so we must lock just in case
-      std::lock_guard lock(m_shared.m_mutex.m_task_group_changing_mutex);
-      m_shared.m_read.m_task_groups.push_back(tasks);
-    }
-    else
-    {
-      m_shared.m_read.m_task_groups.push_back(tasks);
+      std::lock_guard<std::mutex> lock(m_shared.m_input_task_mutex);
+      m_shared.m_input_tasks.emplace_back(std::deque<task>(tasks.begin(), tasks.end()));
     }
 
-    m_shared.m_write.m_num_remaining_tasks.fetch_add(tasks.size());
-    m_num_total_tasks += tasks.size();
+    //TODO MERGE or SEPARATE
+
+    m_subroutines.m_single.m_task_moving->notify_if_condition_met();
+    m_num_remaining_tasks += tasks.size();
     activate_or_add_worker_if_needed();
   }
 
   void work_group::stop_execution()
   {
-    m_workers.clear();
-    m_stop_background_thread = true;
-    m_shared.m_mutex.m_end_of_task_group_reached_condition.notify_one();
-    if (m_background_thread.joinable())
+    for (auto& sub : m_subroutines.m_all)
     {
-      m_background_thread.join();
+      sub->stop();
     }
+    for (auto& worker : m_workers)
+    {
+      worker->stop();
+    }
+    m_workers.clear();
   }
 
+  size_t work_group::get_num_remaining_tasks() const
+  {
+    return m_num_remaining_tasks;
+  }
+
+  void work_group::on_task_completed()
+  {
+    m_num_remaining_tasks--;
+  }
+
+  void work_group::on_task_group_end_reached()
+  {
+    //Update notification on selected subroutines
+    m_subroutines.m_single.m_cleanup->notify_if_condition_met();
+  }
+
+  void work_group::on_task_moved_to_shared_pool(size_t num_moved_tasks)
+  {
+    //Notify workers
+    std::vector<decltype(m_workers)::iterator> m_active_workers;
+    m_active_workers.reserve(num_moved_tasks);
+    for (auto it = m_workers.begin(); it != m_workers.end() && m_active_workers.size() != num_moved_tasks; ++it)
+    {
+      if ((*it)->is_active())
+      {
+        m_active_workers.push_back(it);
+      }
+    }
+    for (auto& it : m_active_workers)
+    {
+      (*it)->notify_if_condition_met();
+    }
+  }
 
   void work_group::add_worker()
   {
     XMESSAGE("New Worker Added");
-    m_workers.emplace_back(std::make_unique<worker>(m_shared.m_write, m_shared.m_read, m_shared.m_mutex));
-    m_workers.back()->activate();
+
+    worker_data data
+    {
+      m_shared.m_task_group_idx,
+      m_shared.m_task_groups,
+      *this
+    };
+    m_workers.emplace_back(std::make_unique<worker>(data, m_shared.m_task_group_changing_mutex));
+    m_workers.back()->start();
   }
 
   void work_group::activate_or_add_worker_if_needed()
   {
     if (m_workers.empty())
     {//Check if it is the first one
-      if (m_shared.m_write.m_num_remaining_tasks != 0)
-      {
-        add_worker();
-      }
+      XASSERT(get_num_remaining_tasks() != 0);
+      add_worker();
       return;
     }
 
@@ -88,7 +145,7 @@ namespace work_scheduling
 
     auto is_worker_needed = [this](size_t num_active_workers)
     {
-      size_t tasks_per_thread = m_shared.m_write.m_num_remaining_tasks / num_active_workers;
+      size_t tasks_per_thread = m_num_remaining_tasks / num_active_workers;
       return tasks_per_thread > m_config.min_resources_to_fork && m_config.max_threads > num_active_workers;
     };
 
@@ -101,7 +158,7 @@ namespace work_scheduling
         if (is_worker_needed(num_active_workers))
         {
           //We should activate it as we need it
-          worker_ptr->activate();
+          worker_ptr->start();
           ++num_active_workers;
         }
         else
@@ -123,35 +180,6 @@ namespace work_scheduling
     }
   }
 
-  void work_group::clean_finished_tasks()
-  {
-    //Critical section
-    {
-      if (m_shared.m_mutex.m_task_group_changing_mutex.try_lock())
-      {
-        //Checking for greater as it is possible that we cleaned up while a worker had a task in progress
-        if (m_shared.m_write.m_num_remaining_tasks >= m_num_total_tasks)
-        {//Repeat check as the status could have changed
-          m_shared.m_mutex.m_task_group_changing_mutex.unlock();
-          return;
-        }
-        XMESSAGE("Cleanup");
-        auto& task_groups = m_shared.m_read.m_task_groups;
-        const bool current_is_finished = m_shared.m_write.m_task_idx >= task_groups[m_shared.m_read.m_task_group_idx].size();
-        //If we have finished the current, we can erase that one too
-        const size_t index_modifier = current_is_finished ? 1 : 0;
-        task_groups.erase(task_groups.begin(), std::next(task_groups.begin(), m_shared.m_read.m_task_group_idx + index_modifier));
-        m_shared.m_read.m_task_group_idx = 0;
-        m_shared.m_mutex.m_task_group_changing_mutex.unlock();
-      }
-    }
-    //No longer changing task_groups
-    m_num_total_tasks = 0;
-    for (const auto& cont : m_shared.m_read.m_task_groups)
-      m_num_total_tasks += cont.size();
-
-  }
-
   void work_group::erase_unnecesary_workers()
   {
     //TODO FILL
@@ -160,44 +188,42 @@ namespace work_scheduling
 
   void work_group::background_thread_loop()
   {
-    while (!m_stop_background_thread)
-    {
-      //Check if we need to move task group.
-      {
-        std::unique_lock lock(m_shared.m_mutex.m_task_group_changing_mutex);
-        constexpr std::chrono::seconds time_out(2);
-        //Wait with timeout
-        bool success = m_shared.m_mutex.m_end_of_task_group_reached_condition.wait_for(lock, time_out, [this]()
-        {
-          const auto& r = m_shared.m_read;
-          //Save to read the task_index even if it can be changed by the workers as we are already locking them with the lock above.
-          bool const task_available_in_current_group = !r.m_task_groups.empty() && m_shared.m_write.m_task_idx < r.m_task_groups[r.m_task_group_idx].size();
-          bool const there_are_more_groups_available = r.m_task_groups.size() > r.m_task_group_idx + 1;
-          return m_stop_background_thread || (!task_available_in_current_group && there_are_more_groups_available);
-        });
-        if (m_stop_background_thread)
-          break;
-        if (success)
-        {
-          XMESSAGE("Advancing task group");
-          advance_task_group_non_thread_safe();
-          m_shared.m_mutex.m_task_added_condition.notify_one();
-        }
-      }
-      //Check if we need to cleanup old finished tasks
-      clean_finished_tasks();
-      //Check if we need to cleanup unused workers
-      erase_unnecesary_workers();
-    }
+    //while (!m_stop_background_thread)
+    //{
+    //  //Check if we need to move task group.
+    //  {
+    //    std::unique_lock lock(m_shared.m_mutex.m_task_group_changing_mutex);
+    //    constexpr std::chrono::seconds time_out(2);
+    //    //Wait with timeout
+    //    bool success = m_shared.m_mutex.m_end_of_task_group_reached_condition.wait_for(lock, time_out, [this]()
+    //    {
+    //      const auto& r = m_shared.m_read;
+    //      //Save to read the task_index even if it can be changed by the workers as we are already locking them with the lock above.
+    //      bool const task_available_in_current_group = !r.m_task_groups.empty() && m_shared.m_write.m_task_idx < r.m_task_groups[r.m_task_group_idx].size();
+    //      bool const there_are_more_groups_available = r.m_task_groups.size() > r.m_task_group_idx + 1;
+    //      return m_stop_background_thread || (!task_available_in_current_group && there_are_more_groups_available);
+    //    });
+    //    if (m_stop_background_thread)
+    //      break;
+    //    if (success)
+    //    {
+    //      XMESSAGE("Advancing task group");
+    //      advance_task_group_non_thread_safe();
+    //      m_shared.m_mutex.m_task_added_condition.notify_one();
+    //    }
+    //  }
+    //  //Check if we need to cleanup unused workers
+    //  erase_unnecesary_workers();
+    //}
 
   }
 
   void work_group::advance_task_group_non_thread_safe()
   {
     //We have finished with the current group
-    ++m_shared.m_read.m_task_group_idx;
-    XMESSAGE("Incrementing group index to ", m_shared.m_read.m_task_group_idx.load());
-    m_shared.m_write.m_task_idx.store(0);
+    //++m_shared.m_read.m_task_group_idx;
+    //XMESSAGE("Incrementing group index to ", m_shared.m_read.m_task_group_idx.load());
+    //m_shared.m_write.m_task_idx.store(0);
   }
 
 

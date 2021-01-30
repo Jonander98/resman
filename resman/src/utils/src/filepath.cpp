@@ -29,7 +29,10 @@ filepath::filepath(const str_t & path)
 
   size_t dot = m_fullpath.find_last_of('.');
   if (dot == str_t::npos)
+  {
+    m_name = m_fullpath;
     return;//Invalid path
+  }
   
   m_extension = m_fullpath.substr(dot++);
 
