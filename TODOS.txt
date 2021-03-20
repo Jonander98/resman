@@ -11,3 +11,11 @@ X-Make the workers sleep or close them when there are no extra tasks
 X-Make resource_ptr thread safe
 X-Make the workers read from the same queue and try to reduce the mutex amount
 X-Dynamic cleanup of tasks on workgroups to avoid having many finished tasks stored
+
+
+X-Make cleanup and others subroutines
+X-Make workers get ownership of a full task group each time
+X-Make input tasks to reduce the times we stop the main thread when adding
+{
+	-Merge and separate before moving from input tasks to actual tasks
+}

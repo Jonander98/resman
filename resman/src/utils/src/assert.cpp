@@ -2,21 +2,41 @@
 #include "pch.h"
 #include "utils/assert.h"
 
-void assert(bool condition, const char* condition_str, const char* location, ...)
+
+void print(std::ostream& out, const char* fmt, va_list args)
 {
-  if (!condition)
+  static std::mutex printMutex;
+  std::lock_guard<std::mutex> lock(printMutex);
+  if (fmt)
   {
-    std::cerr << "Assert failed: " << condition_str;
-    std::va_list args;
-    log(std::cerr, args);
-    XBREAK();
-    throw std::runtime_error(std::string("Assert failed at ") + location);
+    vprintf(fmt, args);
+    printf("\n");
+  }
+  else
+  {
+    log(out, args);
+    std::cout << std::endl;
   }
 }
 
-void print(...)
+void print(std::ostream& out, const char * fmt, ...)
 {
   std::va_list args;
-  log(std::cout, args);
-  std::cout << std::endl;
+  va_start(args, fmt);
+  print(out, fmt, args);
+  va_end(args);
+}
+
+void assert(bool condition, const char* condition_str, const char* location, const char * fmt, ...)
+{
+  if (!condition)
+  {
+    print(std::cerr, "Assert failed: %s", condition_str);
+    std::va_list args;
+    va_start(args, location);
+    print(std::cerr, fmt, args);
+    va_end(args);
+    XBREAK();
+    throw std::runtime_error(std::string("Assert failed at ") + location);
+  }
 }

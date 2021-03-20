@@ -31,15 +31,13 @@ namespace work_scheduling
   }
   void cleanup_subroutine::on_condition_met()
   {
-    XMESSAGE("Performing Cleanup");
+    XMESSAGE("%s Performing Cleanup", get_debug_name().c_str());
     auto& task_groups = m_data.m_task_groups;
     auto task_group_idx = m_data.m_task_group_idx.load();
 
-    //Clamp to make sure we are not erasing more than needed
-    //task_group_idx = std::clamp(task_group_idx, task_group_idx, task_groups.size());
-
-    size_t num_erased_elements = std::distance(task_groups.begin(), std::next(task_groups.begin(), task_group_idx));
-    task_groups.erase(task_groups.begin(), std::next(task_groups.begin(), task_group_idx));
+    auto last_it = std::next(task_groups.begin(), task_group_idx);
+    size_t num_erased_elements = std::distance(task_groups.begin(), last_it);
+    task_groups.erase(task_groups.begin(), last_it);
     m_data.m_task_group_idx -= num_erased_elements;
   }
   bool cleanup_subroutine::is_condition_met() const

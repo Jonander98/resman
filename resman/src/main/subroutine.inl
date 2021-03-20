@@ -24,7 +24,7 @@ namespace work_scheduling
     XASSERTMSG(m_thread.joinable(), "[Subroutine] Calling stop when not started");
     if (m_thread.joinable())
     {
-      XMESSAGE(get_debug_name(), "Closing...");
+      XMESSAGE("%s Closing...", get_debug_name().c_str());
       m_abort = true;
       m_check_condition.notify_one();
       m_thread.join();
@@ -46,12 +46,12 @@ namespace work_scheduling
     {
       {
         Lock_T lock(m_mutex);
-        XMESSAGE(get_debug_name(), "StartingToWait");
+        XMESSAGE("%s StartingToWait", get_debug_name().c_str());
         m_check_condition.wait(lock, [this]() -> bool
         {
           return m_abort || is_condition_met();
         });
-        XMESSAGE(get_debug_name(), "FinishedWaiting");
+        XMESSAGE("%s FinishedWaiting", get_debug_name().c_str());
         if (m_abort)
         {
           //Don't bother performing any other task

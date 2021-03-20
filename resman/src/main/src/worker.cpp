@@ -11,7 +11,7 @@
 namespace work_scheduling
 {
 #ifdef _DEBUG
-#define XWORKERMSG(...) XMESSAGE("[Worker ", m_worker_id, "]", __VA_ARGS__)
+#define XWORKERMSG(...) XMESSAGE("[Worker %d]", m_worker_id); XMESSAGE(__VA_ARGS__);
   u32 worker::s_worker_ids = 0;
 #else
 #define XWORKERMSG(...)

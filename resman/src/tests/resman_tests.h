@@ -24,7 +24,7 @@ protected:
       i32 i = 0;
       for (i32 & el : ordered)
         el = i++;
-      XMESSAGE("Loaded Dummy with path: \"", path.get_name(), '\"');
+      XMESSAGE("Loaded Dummy with path: \"%s\"", path.get_name().c_str());
       return true;
     }
     std::array<i32, 80> ordered;

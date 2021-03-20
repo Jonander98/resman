@@ -3,14 +3,15 @@
 namespace
 {
   template<typename ...Args>
-  void log(std::ostream & out, Args && ...args)
+  void log(std::ostream& out, Args && ...args)
   {
     (out << ... << args);
     out << std::endl;
   }
 }
-void assert(bool condition, const char* condition_str, const char* location, ...);
-void print(...);
+
+void assert(bool condition, const char* condition_str, const char* location, const char * fmt = nullptr, ...);
+void print(std::ostream& out = std::cout, const char* fmt = nullptr, ...);
 
 // Macros
 #if _WIN32
@@ -26,8 +27,8 @@ void print(...);
 
 
 #define XASSERT(what) assert(what, #what, __LOCATION__)
-#define XASSERTMSG(what, ...) assert(what, #what, __LOCATION__, __VA_ARGS__)
-#define XERROR(what) {std::cerr << "Error: " << what; XBREAK(); throw std::runtime_error("Error at " __LOCATION__); }
+#define XASSERTMSG(what, fmt, ...) assert(what, #what, __LOCATION__, fmt, __VA_ARGS__)
+#define XERROR(what) XASSERT(false)
 
 #ifdef _DEBUG
 #define ENABLE_PRINTS
@@ -35,7 +36,7 @@ void print(...);
 #define XWASTECHECKCODE_TRUE(what) what
 #define XWASTECHECKCODE_FALSE(what) what
 #ifdef ENABLE_PRINTS
-#define XMESSAGE(...) log(std::cout, __VA_ARGS__)
+#define XMESSAGE(fmt, ...) print(std::cout, fmt, __VA_ARGS__);
 #else
 #define XMESSAGE(...) (void) __VA_ARGS__
 #endif // ENABLE_PRINTS
