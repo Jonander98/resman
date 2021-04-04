@@ -8,7 +8,7 @@
 
 #pragma region worker
 
-namespace work_scheduling
+namespace WorkScheduling
 {
   work_group::work_group(config cf)
     : m_config(cf)

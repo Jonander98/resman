@@ -3,7 +3,7 @@
 #include "main/subroutine.h"
 #include "main/work_group.h"
 
-namespace work_scheduling
+namespace WorkScheduling
 {
   subroutine_base::subroutine_base()
     : m_abort(false)

@@ -9,7 +9,6 @@
 #include "utils/message_log.h"
 #include "work_group.h"
 
-
 class resman
 {
 public://Public types
@@ -25,7 +24,7 @@ public://Public types
   };
 private://Private types
   template <typename resource_type>
-  using resource_container = std::map<resource::id_type, resource_ptr<resource_type>>;
+  using resource_container = std::unordered_map<resource::id_type, resource_ptr<resource_type>>;
 public:
   //Makes sure all the resources get unloaded
   ~resman();
@@ -93,12 +92,17 @@ public://log and config
   */
   void save_to_file(const filepath &, bool only_ever_used = false)const;
   /*
-  * Loads a resourcemanager status from file. All the loaded resources are unloaded
+  * Loads a resourcemanager status from file.
+  * The types that were not registered will get ignored
+  */
+  void from_file(const filepath&);
+  /*
+  * Loads a resourcemanager status from file.
   * The template parameters are the types that want to be loaded from the file. If a type is not provided
   * and it is found on the file, it is ignored
   */
   template<typename ...resource_types>
-  void from_file(const filepath&);
+  void from_file_restricted_type(const filepath&);
 public:
   //Registers a resource type
   template <typename resource_type>
@@ -115,7 +119,7 @@ private:
   * It returns null if the resource was not previously registered
   */
   template <typename resource_type>
-  resource_container<resource_type> * get_resource_container();
+  resource_container<resource_type>* get_resource_container();
   //Performs all the static checks for all the structural requirements a resource must meet
   template <typename resource_type>
   constexpr void check_resource_type();
@@ -124,9 +128,11 @@ private:
   * matches with any of the types. Otherwise, nothing happens
   */
   template <typename resource_type, typename resource_type2, typename ...args>
-  void load_if_same_type(size_t id, const filepath& fp);
+  void load_if_same_type(RTTI::type id, const filepath& fp);
   template<typename resource_type>
-  void load_if_same_type(size_t id, const filepath& fp);
+  void load_if_same_type(RTTI::type id, const filepath& fp);
+  //Internal helper version
+  bool is_registered(RTTI::type typeId);
 
   /*
   * Loads a resource of the given type from the given path.
@@ -135,13 +141,16 @@ private:
   template <typename resource_type>
   void internal_load(const filepath &, bool is_async);
 
+  //Helper to reuse file loading code
+  void for_each_resource_in_file(const filepath& fp, std::function<void(const filepath&, size_t)> action) const;
+
 private:
   //A map from type id to the corresponding resource container
-  std::map<size_t, void*> m_resources;
+  std::unordered_map<RTTI::type, void*> m_resources;
   //The log for the messages
-  message_log m_log;
+  mutable message_log m_log;
   //The work group that will load asyncronously
-  work_scheduling::work_group m_work_group;
+  WorkScheduling::work_group m_work_group;
   //The config of the resource manager(related with threads)
   config m_config;
 };

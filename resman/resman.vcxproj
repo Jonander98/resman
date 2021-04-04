@@ -267,6 +267,8 @@
     <ClInclude Include="src\main\work_group.h" />
     <ClInclude Include="src\main\subroutine.h" />
     <ClInclude Include="src\main\work_scheduling.h" />
+    <ClInclude Include="src\rtti\rtti_min.h" />
+    <ClInclude Include="src\rtti\type.h" />
     <ClInclude Include="src\tests\resman_tests_long.h" />
     <ClInclude Include="src\tests\resman_tests_short.h" />
     <ClInclude Include="src\tests\resource_tests.h" />
@@ -292,6 +294,7 @@
     <ClCompile Include="src\main\src\worker.cpp" />
     <ClCompile Include="src\main\src\work_group.cpp" />
     <ClCompile Include="src\main\src\subroutine.cpp" />
+    <ClCompile Include="src\rtti\src\type.cpp" />
     <ClCompile Include="src\usage\src\model.cpp" />
     <ClCompile Include="src\usage\src\object.cpp" />
     <ClCompile Include="src\usage\src\texture.cpp" />

@@ -8,7 +8,7 @@
 
 #pragma region worker
 
-namespace work_scheduling
+namespace WorkScheduling
 {
 #ifdef _DEBUG
 #define XWORKERMSG(...) XMESSAGE("[Worker %d]", m_worker_id); XMESSAGE(__VA_ARGS__);

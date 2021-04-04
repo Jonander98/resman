@@ -18,6 +18,7 @@
 //Others
 #include <thread>
 #include <typeinfo>
+#include <typeindex>
 #include <chrono>
 #include <mutex>
 #include <shared_mutex>
@@ -42,3 +43,4 @@ using str_t = std::string;
 
 
 #include "utils/assert.h"
+#include "rtti/rtti_min.h"

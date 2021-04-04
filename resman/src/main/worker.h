@@ -4,7 +4,7 @@
 #include "main/work_scheduling.h"
 #include "main/subroutine.h"
 
-namespace work_scheduling
+namespace WorkScheduling
 {
 
   struct worker_data

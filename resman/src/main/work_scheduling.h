@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace work_scheduling
+namespace WorkScheduling
 {
   using task = std::function<void(void)>;
   using task_group = std::queue<task>;

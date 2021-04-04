@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "work_scheduling.h"
 
-namespace work_scheduling
+namespace WorkScheduling
 {
   class i_subroutine
   {

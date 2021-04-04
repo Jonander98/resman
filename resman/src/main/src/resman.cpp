@@ -5,7 +5,7 @@
 #include "pch.h"
 #include "main/resman.h"
 
-using work_scheduling::work_group;
+using WorkScheduling::work_group;
 
 resman::~resman()
 {
@@ -90,9 +90,9 @@ void resman::set_log(const message_log & log)
      return;
 
    std::stringstream buff;
-   auto push_resource = [&buff](size_t type_id, const filepath & path)
+   auto push_resource = [&buff](RTTI::type type_id, const filepath & path)
    {
-     buff << type_id << ' ' << path.get_fullpath() << '\n';
+     buff << type_id.get_hash() << ' ' << path.get_fullpath() << '\n';
    };
 
    for (auto pair : m_resources)
@@ -111,5 +111,53 @@ void resman::set_log(const message_log & log)
      }
    }
    file << buff.str();
+ }
+
+ void resman::from_file(const filepath& fp)
+ {
+   for_each_resource_in_file(fp, [this](const filepath& fp, size_t id)
+   {
+     if (is_registered(id))
+     {
+       XASSERTMSG(false, "From file not supported");
+       //reinterpret_cast<resource_container<resource> *>(m_resources.find(id)->second)->emplace(id, fp);
+     }
+   });
+ }
+
+ bool resman::is_registered(RTTI::type typeId)
+ {
+   return m_resources.find(typeId) != m_resources.end();
+ }
+
+ void resman::for_each_resource_in_file(const filepath& fp, std::function<void(const filepath&, size_t)> action) const
+ {
+   std::ifstream file;
+   file.open(fp.get_fullpath());
+
+   if (!file.is_open())
+     return;
+
+   std::array<char, 200> buff;
+   std::array<char, 1> separators{ ' ' };
+
+   while (!file.eof())
+   {
+     buff.fill(0);
+     file.getline(buff.data(), buff.size());
+     //Parse line
+     auto it = std::find_first_of(buff.begin(), buff.end(), separators.begin(), separators.end());
+     if (it == buff.end())
+     {
+       m_log.error("Loading from file: File was modified or not well saved");
+       continue;
+     }
+
+     size_t id = std::stoull(buff.data());
+     filepath resource_file{ std::string(++it, buff.end()) };
+
+     action(resource_file, id);
+   }
+   file.close();
  }
 

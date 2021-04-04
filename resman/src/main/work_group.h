@@ -9,7 +9,7 @@
 #include "main/work_scheduling.h"
 #include "main/subroutine.h"
 
-namespace work_scheduling
+namespace WorkScheduling
 {
   class i_work_group
   {

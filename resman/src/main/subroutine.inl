@@ -2,7 +2,7 @@
 //Too many arguments for assert macro
 #pragma warning (push)
 #pragma warning (disable:4002)
-namespace work_scheduling
+namespace WorkScheduling
 {
   template<typename Data_T, typename Mutex_T, typename Lock_T>
   inline subroutine<Data_T, Mutex_T, Lock_T>::~subroutine()
