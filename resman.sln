@@ -9,8 +9,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
-		Degug_Print|x64 = Degug_Print|x64
-		Degug_Print|x86 = Degug_Print|x86
+		DebugASAN|x64 = DebugASAN|x64
+		DebugASAN|x86 = DebugASAN|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -19,10 +19,10 @@ Global
 		{F09673D8-C2F6-4477-A091-6F6082DD2289}.Debug|x64.Build.0 = Debug|x64
 		{F09673D8-C2F6-4477-A091-6F6082DD2289}.Debug|x86.ActiveCfg = Debug|Win32
 		{F09673D8-C2F6-4477-A091-6F6082DD2289}.Debug|x86.Build.0 = Debug|Win32
-		{F09673D8-C2F6-4477-A091-6F6082DD2289}.Degug_Print|x64.ActiveCfg = Degug_Print|x64
-		{F09673D8-C2F6-4477-A091-6F6082DD2289}.Degug_Print|x64.Build.0 = Degug_Print|x64
-		{F09673D8-C2F6-4477-A091-6F6082DD2289}.Degug_Print|x86.ActiveCfg = Degug_Print|Win32
-		{F09673D8-C2F6-4477-A091-6F6082DD2289}.Degug_Print|x86.Build.0 = Degug_Print|Win32
+		{F09673D8-C2F6-4477-A091-6F6082DD2289}.DebugASAN|x64.ActiveCfg = DebugASAN|x64
+		{F09673D8-C2F6-4477-A091-6F6082DD2289}.DebugASAN|x64.Build.0 = DebugASAN|x64
+		{F09673D8-C2F6-4477-A091-6F6082DD2289}.DebugASAN|x86.ActiveCfg = Release|Win32
+		{F09673D8-C2F6-4477-A091-6F6082DD2289}.DebugASAN|x86.Build.0 = Release|Win32
 		{F09673D8-C2F6-4477-A091-6F6082DD2289}.Release|x64.ActiveCfg = Release|x64
 		{F09673D8-C2F6-4477-A091-6F6082DD2289}.Release|x64.Build.0 = Release|x64
 		{F09673D8-C2F6-4477-A091-6F6082DD2289}.Release|x86.ActiveCfg = Release|Win32
