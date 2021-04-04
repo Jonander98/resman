@@ -182,54 +182,6 @@ namespace work_scheduling
       }
     }
   }
-
-  void work_group::erase_unnecesary_workers()
-  {
-    //TODO FILL
-
-  }
-
-  void work_group::background_thread_loop()
-  {
-    //while (!m_stop_background_thread)
-    //{
-    //  //Check if we need to move task group.
-    //  {
-    //    std::unique_lock lock(m_shared.m_mutex.m_task_group_changing_mutex);
-    //    constexpr std::chrono::seconds time_out(2);
-    //    //Wait with timeout
-    //    bool success = m_shared.m_mutex.m_end_of_task_group_reached_condition.wait_for(lock, time_out, [this]()
-    //    {
-    //      const auto& r = m_shared.m_read;
-    //      //Save to read the task_index even if it can be changed by the workers as we are already locking them with the lock above.
-    //      bool const task_available_in_current_group = !r.m_task_groups.empty() && m_shared.m_write.m_task_idx < r.m_task_groups[r.m_task_group_idx].size();
-    //      bool const there_are_more_groups_available = r.m_task_groups.size() > r.m_task_group_idx + 1;
-    //      return m_stop_background_thread || (!task_available_in_current_group && there_are_more_groups_available);
-    //    });
-    //    if (m_stop_background_thread)
-    //      break;
-    //    if (success)
-    //    {
-    //      XMESSAGE("Advancing task group");
-    //      advance_task_group_non_thread_safe();
-    //      m_shared.m_mutex.m_task_added_condition.notify_one();
-    //    }
-    //  }
-    //  //Check if we need to cleanup unused workers
-    //  erase_unnecesary_workers();
-    //}
-
-  }
-
-  void work_group::advance_task_group_non_thread_safe()
-  {
-    //We have finished with the current group
-    //++m_shared.m_read.m_task_group_idx;
-    //XMESSAGE("Incrementing group index to ", m_shared.m_read.m_task_group_idx.load());
-    //m_shared.m_write.m_task_idx.store(0);
-  }
-
-
 }
 
 #pragma endregion

@@ -18,6 +18,7 @@ namespace work_scheduling
     virtual void on_task_group_end_reached() = 0;
     virtual void on_task_moved_to_shared_pool(size_t num_moved_tasks) = 0;
   };
+
   class work_group : public i_work_group
   {
   public:
@@ -81,12 +82,6 @@ namespace work_scheduling
     void add_worker();
     //Checks if an extra worker is needed due to the extra load and creates one if necessary
     void activate_or_add_worker_if_needed();
-    //Removes workers from the worker vector if they are not expected to be needed
-    void erase_unnecesary_workers();
-    //Starting function for the cleanup thread from the work_group
-    void background_thread_loop();
-    //Move to the next task group so that the workers can pick from it
-    void advance_task_group_non_thread_safe();
   private:
     //Shared data between workers
     shared_work_group_data m_shared;

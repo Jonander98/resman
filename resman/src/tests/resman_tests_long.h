@@ -27,7 +27,6 @@ bool wait_until(const std::function<bool()> & cond, f32 max_seconds)
 }
 
 
-#if 0
 TEST_F(resman_fixture, resource_load_async)
 {
   using load_t = load_1s;
@@ -47,9 +46,7 @@ TEST_F(resman_fixture, resource_load_async)
   XMESSAGE("FINISHED_TEST");
 
 }
-#endif
 
-#if 0
 TEST_F(resman_fixture, resource_load_async2)
 {
   resman::config c;
@@ -79,9 +76,8 @@ TEST_F(resman_fixture, resource_load_async2)
   ASSERT_TRUE(condition_succeded);
 
 }
-#endif
 
-#if 1
+
 TEST_F(resman_fixture, resource_load_async_stress)
 {
   resman::config c;
@@ -120,4 +116,3 @@ TEST_F(resman_fixture, resource_load_async_stress)
   ASSERT_TRUE(condition_succeded);
 
 }
-#endif

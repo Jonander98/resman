@@ -26,26 +26,21 @@ void print(std::ostream& out = std::cout, const char* fmt = nullptr, ...);
 
 
 
+#ifdef _DEBUG
+
 #define XASSERT(what) assert(what, #what, __LOCATION__)
 #define XASSERTMSG(what, fmt, ...) assert(what, #what, __LOCATION__, fmt, __VA_ARGS__)
 #define XERROR(what) XASSERT(false)
 
-#ifdef _DEBUG
-#define ENABLE_PRINTS
-
-#define XWASTECHECKCODE_TRUE(what) what
-#define XWASTECHECKCODE_FALSE(what) what
-#ifdef ENABLE_PRINTS
+#ifdef _ENABLE_PRINTS
 #define XMESSAGE(fmt, ...) print(std::cout, fmt, __VA_ARGS__);
 #else
 #define XMESSAGE(...) (void) __VA_ARGS__
 #endif // ENABLE_PRINTS
 
 #else
-//#define XASSERT(what)
-//#define XASSERTMSG(what, ...)
-//#define XERROR(what)
-#define XWASTECHECKCODE_TRUE(what) true
-#define XWASTECHECKCODE_FALSE(what) false
+#define XASSERT(what)
+#define XASSERTMSG(what, fmt, ...)
+#define XERROR(what)
 #define XMESSAGE(...)
 #endif // _DEBUG
