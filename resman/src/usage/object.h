@@ -7,10 +7,10 @@
 #include "texture.h"
 #include "main/resource.h"
 
-class object
+class Object
 {
-  void foo();
+  void Foo();
 private:
-  resource_ptr<texture> m_tex;
+  ResourcePtr<Texture> m_tex;
 
 };

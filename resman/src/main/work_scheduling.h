@@ -4,6 +4,6 @@
 
 namespace WorkScheduling
 {
-  using task = std::function<void(void)>;
-  using task_group = std::queue<task>;
+  using Task = std::function<void(void)>;
+  using TaskGroup = std::queue<Task>;
 }

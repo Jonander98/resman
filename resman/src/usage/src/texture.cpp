@@ -7,7 +7,7 @@
 #include "utils/filepath.h"
 
 
-bool texture::load(const filepath & path)
+bool Texture::VLoad(const Filepath & path)
 {
   (void)path;
   //std::cout << "LOAD: texture" << std::endl;
@@ -15,7 +15,7 @@ bool texture::load(const filepath & path)
   return true;
 }
 
-void texture::unload()
+void Texture::VUnload()
 {
   //std::cout << "UNLOAD: texture" << std::endl;
 }

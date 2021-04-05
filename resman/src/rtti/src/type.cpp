@@ -5,51 +5,51 @@
 namespace RTTI
 {
 
-  type::type(size_t val)
-    : m_is_type_index(false)
-    , m_as_val(val)
-    , m_as_index(typeid(int))
+  Type::Type(size_t val)
+    : m_isTypeIndex(false)
+    , m_asVal(val)
+    , m_asIndex(typeid(int))
   {
     XASSERT(false);
   }
 
-  type::type(std::type_index index)
-    : m_is_type_index(true)
-    , m_as_index(index)
-    , m_as_val(0)
+  Type::Type(std::type_index index)
+    : m_isTypeIndex(true)
+    , m_asIndex(index)
+    , m_asVal(0)
   {}
 
-  bool type::operator==(size_t i) const
+  bool Type::operator==(size_t i) const
   {
-    return get_hash() == i;
+    return GetHash() == i;
   }
 
-  bool type::operator==(std::type_index i) const
+  bool Type::operator==(std::type_index i) const
   {
-    XASSERT(m_is_type_index);
-    return i == m_as_index;
+    XASSERT(m_isTypeIndex);
+    return i == m_asIndex;
   }
 
-  bool type::operator==(const type & t) const
+  bool Type::operator==(const Type & t) const
   {
-    return get_hash() == t.get_hash();
+    return GetHash() == t.GetHash();
   }
 
-  std::type_index type::as_type_index() const
+  std::type_index Type::AsTypeIndex() const
   {
-    XASSERT(m_is_type_index);
-    return m_as_index;
+    XASSERT(m_isTypeIndex);
+    return m_asIndex;
   }
 
-  size_t type::get_hash() const
+  size_t Type::GetHash() const
   {
-    if (m_is_type_index)
+    if (m_isTypeIndex)
     {
-      return m_as_index.hash_code();
+      return m_asIndex.hash_code();
     }
     else
     {
-      return m_as_val;
+      return m_asVal;
     }
   }
 }

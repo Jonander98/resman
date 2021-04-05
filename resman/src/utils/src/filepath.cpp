@@ -6,7 +6,7 @@
 #include "pch.h"
 #include "utils/filepath.h"
 
-filepath::filepath(const str_t & path)
+Filepath::Filepath(const str_t & path)
   : m_fullpath(path)
 {
   const size_t nullendpos = m_fullpath.find_first_of('\0');
@@ -46,26 +46,26 @@ filepath::filepath(const str_t & path)
 
 }
 
-filepath::filepath(const char * path)
-  : filepath(str_t(path))
+Filepath::Filepath(const char * path)
+  : Filepath(str_t(path))
 {}
 
-const str_t & filepath::get_fullpath() const
+const str_t & Filepath::GetFullPath() const
 {
   return m_fullpath;
 }
 
-const str_t & filepath::get_extension() const
+const str_t & Filepath::GetExtension() const
 {
   return m_extension;
 }
 
-const str_t & filepath::get_name() const
+const str_t & Filepath::GetName() const
 {
   return m_name;
 }
 
-const str_t filepath::get_full_name() const
+const str_t Filepath::GetFullName() const
 {
   return m_name + m_extension;
 }

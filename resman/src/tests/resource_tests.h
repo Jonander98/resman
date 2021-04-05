@@ -11,24 +11,24 @@
 #include "usage/texture.h"
 
 
-TEST(resource_ptr, creation)
+TEST(ResourcePtr, creation)
 {
   //Not compiling zone
   //resource_ptr<int> ptr;
   //resource_ptr<texture> tex_ptr(new texture);
 
-  ASSERT_TRUE(resource_ptr<texture>().is_valid() == false);
-  ASSERT_EQ(resource_ptr<texture>().get_reference_count(), i32(0));
+  ASSERT_TRUE(ResourcePtr<Texture>().IsValid() == false);
+  ASSERT_EQ(ResourcePtr<Texture>().GetReferenceCount(), i32(0));
 }
 
-TEST(resource_ptr, reference_counting)
+TEST(ResourcePtr, reference_counting)
 {
-  resman rm;
-  rm.register_resource<texture>();
-  rm.load<texture>("./assets/test.png");
-  resource_ptr<texture> t_ptr = rm.get<texture>("test.png");
-  ASSERT_EQ(t_ptr.get_reference_count(), i32(1));
-  resource_ptr<texture> t_ptr2 = t_ptr;
-  ASSERT_EQ(t_ptr.get_reference_count(), i32(2));
-  ASSERT_EQ(t_ptr.get_reference_count(), t_ptr2.get_reference_count());
+  Resman rm;
+  rm.RegisterResource<Texture>();
+  rm.Load<Texture>("./assets/test.png");
+  ResourcePtr<Texture> t_ptr = rm.Get<Texture>("test.png");
+  ASSERT_EQ(t_ptr.GetReferenceCount(), i32(1));
+  ResourcePtr<Texture> t_ptr2 = t_ptr;
+  ASSERT_EQ(t_ptr.GetReferenceCount(), i32(2));
+  ASSERT_EQ(t_ptr.GetReferenceCount(), t_ptr2.GetReferenceCount());
 }

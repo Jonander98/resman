@@ -10,175 +10,175 @@
 
 namespace WorkScheduling
 {
-  work_group::work_group(config cf)
+  WorkGroup::WorkGroup(Config cf)
     : m_config(cf)
   {
     {
-      cleanup_data data
+      CleanupData data
       {
-         m_shared.m_task_groups,
-         m_shared.m_task_group_idx
+         m_shared.taskGroups,
+         m_shared.taskGroupIdx
       };
-      m_subroutines.m_single.m_cleanup = std::make_unique<cleanup_subroutine>(data, m_shared.m_task_group_changing_mutex);
+      m_subroutines.asSingle.cleanup = std::make_unique<CleanupSubroutine>(data, m_shared.taskGroupChangingMutex);
     }
     {
-      task_moving_data data
+      TaskMovingData data
       {
-         m_shared.m_input_tasks,
-         m_shared.m_task_groups,
-         m_shared.m_task_group_idx,
+         m_shared.inputTasks,
+         m_shared.taskGroups,
+         m_shared.taskGroupIdx,
          *this
       };
-      m_subroutines.m_single.m_task_moving = std::make_unique<task_moving_subroutine>(data, m_shared.m_task_group_changing_mutex, m_shared.m_input_task_mutex);
+      m_subroutines.asSingle.taskMoving = std::make_unique<TaskMovingSubroutine>(data, m_shared.taskGroupChangingMutex, m_shared.inputTaskMutex);
     }
 
-    for (auto& sub : m_subroutines.m_all)
+    for (auto& sub : m_subroutines.asAll)
     {
-      sub->start();
+      sub->Start();
     }
   }
 
-  work_group::~work_group()
+  WorkGroup::~WorkGroup()
   {
     XMESSAGE("Destroying Workgroup");
   }
 
-  void work_group::add_task(task t)
+  void WorkGroup::AddTask(Task t)
   {
     XMESSAGE("Adding a task");
-    add_task(std::vector<task>{t});
+    AddTask(std::vector<Task>{t});
   }
 
-  void work_group::add_task(std::vector<task> tasks)
+  void WorkGroup::AddTask(std::vector<Task> tasks)
   {
     if (tasks.empty())
       return;
 
     {
-      std::lock_guard<std::mutex> lock(m_shared.m_input_task_mutex);
-      m_shared.m_input_tasks.emplace_back(std::deque<task>(tasks.begin(), tasks.end()));
+      std::lock_guard<std::mutex> lock(m_shared.inputTaskMutex);
+      m_shared.inputTasks.emplace_back(std::deque<Task>(tasks.begin(), tasks.end()));
     }
 
     //TODO MERGE or SEPARATE
 
-    m_subroutines.m_single.m_task_moving->notify_if_condition_met();
-    m_num_remaining_tasks += tasks.size();
-    activate_or_add_worker_if_needed();
+    m_subroutines.asSingle.taskMoving->VNotifyIfConditionMet();
+    m_numRemainingTasks += tasks.size();
+    ActivateOrAddWorkerIfNeeded();
   }
 
-  void work_group::stop_execution()
+  void WorkGroup::StopExecution()
   {
-    for (auto& sub : m_subroutines.m_all)
+    for (auto& sub : m_subroutines.asAll)
     {
-      sub->stop();
+      sub->VStop();
     }
     for (auto& worker : m_workers)
     {
-      worker->stop();
+      worker->VStop();
     }
     m_workers.clear();
   }
 
-  size_t work_group::get_num_remaining_tasks() const
+  size_t WorkGroup::GetNumRemainingTasks() const
   {
-    return m_num_remaining_tasks;
+    return m_numRemainingTasks;
   }
 
-  void work_group::on_task_completed()
+  void WorkGroup::OnTaskCompleted()
   {
-    m_num_remaining_tasks--;
+    m_numRemainingTasks--;
   }
 
-  void work_group::on_task_group_end_reached()
+  void WorkGroup::OnTaskGroupEndReached()
   {
     //Update notification on selected subroutines
-    m_subroutines.m_single.m_cleanup->notify_if_condition_met();
+    m_subroutines.asSingle.cleanup->VNotifyIfConditionMet();
     //We might have not moved when adding a task because we already had many tasks in the shared pool,
     //So we notify here too
-    m_subroutines.m_single.m_task_moving->notify_if_condition_met();
+    m_subroutines.asSingle.taskMoving->VNotifyIfConditionMet();
   }
 
-  void work_group::on_task_moved_to_shared_pool(size_t num_moved_tasks)
+  void WorkGroup::OnTaskMovedToSharedPool(size_t numMovedTasks)
   {
     //Notify workers
-    std::vector<decltype(m_workers)::iterator> m_active_workers;
-    m_active_workers.reserve(num_moved_tasks);
-    for (auto it = m_workers.begin(); it != m_workers.end() && m_active_workers.size() != num_moved_tasks; ++it)
+    std::vector<decltype(m_workers)::iterator> activeWorkers;
+    activeWorkers.reserve(numMovedTasks);
+    for (auto it = m_workers.begin(); it != m_workers.end() && activeWorkers.size() != numMovedTasks; ++it)
     {
-      if ((*it)->is_active())
+      if ((*it)->IsActive())
       {
-        m_active_workers.push_back(it);
+        activeWorkers.push_back(it);
       }
     }
-    for (auto& it : m_active_workers)
+    for (auto& it : activeWorkers)
     {
-      (*it)->notify_if_condition_met();
+      (*it)->VNotifyIfConditionMet();
     }
   }
 
-  void work_group::add_worker()
+  void WorkGroup::AddWorker()
   {
     XMESSAGE("New Worker Added");
 
-    worker_data data
+    WorkerData data
     {
-      m_shared.m_task_group_idx,
-      m_shared.m_task_groups,
+      m_shared.taskGroupIdx,
+      m_shared.taskGroups,
       *this
     };
-    m_workers.emplace_back(std::make_unique<worker>(data, m_shared.m_task_group_changing_mutex));
-    m_workers.back()->start();
+    m_workers.emplace_back(std::make_unique<Worker>(data, m_shared.taskGroupChangingMutex));
+    m_workers.back()->Start();
   }
 
-  void work_group::activate_or_add_worker_if_needed()
+  void WorkGroup::ActivateOrAddWorkerIfNeeded()
   {
     if (m_workers.empty())
     {//Check if it is the first one
-      XASSERT(get_num_remaining_tasks() != 0);
-      add_worker();
+      XASSERT(GetNumRemainingTasks() != 0);
+      AddWorker();
       return;
     }
 
-    size_t num_active_workers = std::count_if(m_workers.begin(), m_workers.end(), [](const std::unique_ptr<worker>& w)
+    size_t numActiveWorkers = std::count_if(m_workers.begin(), m_workers.end(), [](const std::unique_ptr<Worker>& w)
     {
-      return w->is_active();
+      return w->IsActive();
     });
 
-    bool check_for_add = true;
+    bool checkForAdd = true;
 
-    auto is_worker_needed = [this](size_t num_active_workers)
+    auto fIsWorkerNeeded = [this](size_t numActiveWorkers)
     {
-      size_t tasks_per_thread = m_num_remaining_tasks / num_active_workers;
-      return tasks_per_thread > m_config.min_resources_to_fork && m_config.max_threads > num_active_workers;
+      size_t tasksPerThread = m_numRemainingTasks / numActiveWorkers;
+      return tasksPerThread > m_config.minResourcesToFork && m_config.maxThreads > numActiveWorkers;
     };
 
     for (auto it = m_workers.begin(); it != m_workers.end(); ++it)
     {
-      const auto& worker_ptr = *it;
-      if (!worker_ptr->is_active())
+      const auto& workerPtr = *it;
+      if (!workerPtr->IsActive())
       {
         //Check if we should reactivate it
-        if (is_worker_needed(num_active_workers))
+        if (fIsWorkerNeeded(numActiveWorkers))
         {
           //We should activate it as we need it
-          worker_ptr->start();
-          ++num_active_workers;
+          workerPtr->Start();
+          ++numActiveWorkers;
         }
         else
         {
           //Don't add if we already saw we don't need more workers
-          check_for_add = false;
+          checkForAdd = false;
           break;
         }
       }
     }
     //Add workers if needed
-    if (check_for_add)
+    if (checkForAdd)
     {
-      while (is_worker_needed(num_active_workers))
+      while (fIsWorkerNeeded(numActiveWorkers))
       {
-        add_worker();
-        ++num_active_workers;
+        AddWorker();
+        ++numActiveWorkers;
       }
     }
   }

@@ -1,0 +1,59 @@
+
+--Others--------------------------------------------------------------------------------
+
+namespaces: SampleNamespace
+
+macros: SAMPLE_MACRO()
+
+--Types--------------------------------------------------------------------------------
+
+class: SampleClass
+
+//Note: structs only used when everything is public
+struct: SampleStruct
+
+enum: ESampleEnum
+
+//Note: Interfaces only have abstract functions
+interfaces: ISampleInterface
+
+abstract class: ASampleClass
+
+unions: USampleUnion
+
+--Variables--------------------------------------------------------------------------------
+
+class member variables: m_sampleMember
+
+struct member variables: sampleMember
+
+union member variables: asSampleMember
+
+enums used as flags member: f_sampleFlag
+
+enum class members: e_sampleEnum
+
+local variables: sampleLocal
+
+constant non-local variables: c_SampleConstant
+
+static variables: s_SampleStatic
+
+function input variables: variableName
+
+function output variables: out_variableName
+
+lambda local variable: fSampleVariable
+
+
+--Functions--------------------------------------------------------------------------------
+
+member function: SampleFunction()
+
+global function: SampleFunction()
+
+virtual member: VSampleFunction()
+
+static member: SSampleFunction()
+
+"event" functions: OnSampleEvent()

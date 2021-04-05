@@ -14,13 +14,13 @@
 */
 bool wait_until(const std::function<bool()> & cond, f32 max_seconds)
 {
-  auto start = std::chrono::steady_clock::now();
+  auto Start = std::chrono::steady_clock::now();
   i64 elapsed_seconds = 0;
   bool cond_val = false;
   while (elapsed_seconds < max_seconds && !cond_val)
   {
     auto now = std::chrono::steady_clock::now();
-    elapsed_seconds = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
+    elapsed_seconds = std::chrono::duration_cast<std::chrono::seconds>(now - Start).count();
     cond_val = cond();
   }
   return cond_val;
@@ -30,15 +30,15 @@ bool wait_until(const std::function<bool()> & cond, f32 max_seconds)
 TEST_F(resman_fixture, resource_load_async)
 {
   using load_t = load_1s;
-  rm.register_resource<load_t>();
-  rm.load_async<load_t>("./assets/test.png");
-  resource_ptr<load_t> rp = rm.get<load_t>("test.png");
-  ASSERT_TRUE(rp.is_valid());
-  ASSERT_TRUE(!rp->is_loaded());
+  rm.RegisterResource<load_t>();
+  rm.LoadAsync<load_t>("./assets/test.png");
+  ResourcePtr<load_t> rp = rm.Get<load_t>("test.png");
+  ASSERT_TRUE(rp.IsValid());
+  ASSERT_TRUE(!rp->IsLoaded());
   bool condition_succeded = wait_until([&rp]() -> bool
   {
     //std::cout << "time passes" << "\n";
-    return rp->is_loaded();
+    return rp->IsLoaded();
   },
     2.f);//Max wait 2 seconds
 
@@ -49,26 +49,26 @@ TEST_F(resman_fixture, resource_load_async)
 
 TEST_F(resman_fixture, resource_load_async2)
 {
-  resman::config c;
-  c.max_threads = 2;
-  c.min_resources_to_fork = 2;
-  rm.set_config(c);
-  rm.register_resource<dummy<8>>();
-  rm.load_async<dummy<8>>("./assets/test.png");
-  rm.load_async<load_1s>("./assets/test2.png");
-  rm.load_async<load_1s>("./assets/test3.png");
-  rm.load_async<load_1s>("./assets/test4.png");
-  rm.load_async<load_1s>("./assets/test5.png");
+  Resman::Config c;
+  c.maxThreads = 2;
+  c.minResourcesToFork = 2;
+  rm.SetConfig(c);
+  rm.RegisterResource<dummy<8>>();
+  rm.LoadAsync<dummy<8>>("./assets/test.png");
+  rm.LoadAsync<load_1s>("./assets/test2.png");
+  rm.LoadAsync<load_1s>("./assets/test3.png");
+  rm.LoadAsync<load_1s>("./assets/test4.png");
+  rm.LoadAsync<load_1s>("./assets/test5.png");
 
 
-  resource_ptr<load_1s> rp = rm.get<load_1s>("test5.png");
+  ResourcePtr<load_1s> rp = rm.Get<load_1s>("test5.png");
   
-  ASSERT_TRUE(rp.is_valid());
-  ASSERT_TRUE(!rp->is_loaded());
+  ASSERT_TRUE(rp.IsValid());
+  ASSERT_TRUE(!rp->IsLoaded());
   bool condition_succeded = wait_until([&rp]() -> bool
   {
     //std::cout << "time passes" << "\n";
-    return rp->is_loaded();
+    return rp->IsLoaded();
   },
     15.f);//Max wait x seconds
 
@@ -80,30 +80,30 @@ TEST_F(resman_fixture, resource_load_async2)
 
 TEST_F(resman_fixture, resource_load_async_stress)
 {
-  resman::config c;
-  c.max_threads = 10;
-  c.min_resources_to_fork = 10;
-  rm.set_config(c);
+  Resman::Config c;
+  c.maxThreads = 10;
+  c.minResourcesToFork = 10;
+  rm.SetConfig(c);
 
   constexpr i32 NUM_TASKS = 10000;
   using fast_dummy = load_1ms;
 
   for (i32 i = 0; i < NUM_TASKS; ++i)
   {
-    rm.load_async<fast_dummy>(std::to_string(i));
+    rm.LoadAsync<fast_dummy>(std::to_string(i));
   }
 
-  resource_ptr<fast_dummy> rp = rm.get<fast_dummy>(std::to_string(NUM_TASKS - 1));
+  ResourcePtr<fast_dummy> rp = rm.Get<fast_dummy>(std::to_string(NUM_TASKS - 1));
 
-  rm.get_log().print();
-  ASSERT_TRUE(rp.is_valid());
+  rm.GetLog().Print();
+  ASSERT_TRUE(rp.IsValid());
   //ASSERT_TRUE(!rp->is_loaded());
   bool condition_succeded = wait_until([this]() -> bool
   {
-    auto all = rm.get_all_t<fast_dummy>();
+    auto all = rm.GetAllOfType<fast_dummy>();
     for (auto ptr : all)
     {
-      if (!ptr->is_loaded())
+      if (!ptr->IsLoaded())
         return false;
     }
     //std::cout << "time passes" << "\n";
@@ -111,7 +111,7 @@ TEST_F(resman_fixture, resource_load_async_stress)
   },
     300.f);//Max wait x seconds
 
-  rm.get_resource_manager_status().print();
+  rm.GetResourceManagerStatus().Print();
 
   ASSERT_TRUE(condition_succeded);
 

@@ -6,14 +6,14 @@
 #include "usage/model.h"
 #include "utils/filepath.h"
 
-bool model::load(const filepath & path)
+bool Model::VLoad(const Filepath & path)
 {
   //std::cout << "LOAD: model" << std::endl;
   (void)path;
   return true;
 }
 
-void model::unload()
+void Model::VUnload()
 {
   //std::cout << "UNLOAD: model" << std::endl;
 }

@@ -9,55 +9,55 @@
 #include "utils/message_log.h"
 
 
-TEST(message_log, add_message)
+TEST(MessageLog, add_message)
 {
-  message_log log;
-  log.error("Test Error");
-  log.warning("Test Warning");
-  log.info("Test Info");
+  MessageLog log;
+  log.Error("Test Error");
+  log.Warning("Test Warning");
+  log.Info("Test Info");
   //log.print();
 }
-TEST(message_log, cleaning)
+TEST(MessageLog, cleaning)
 {
-  message_log log;
-  log.error("Test Error");
-  log.warning("Test Warning");
-  log.info("Test Info");
-  log.clear();
-  std::vector<char> v1 = log.get_data();
-  log.error("Test Error");
-  log.warning("Test Warning");
-  log.info("Test Info");
-  log.clear_keep_mem();
-  std::vector<char> v2 = log.get_data();
+  MessageLog log;
+  log.Error("Test Error");
+  log.Warning("Test Warning");
+  log.Info("Test Info");
+  log.Clear();
+  std::vector<char> v1 = log.GetData();
+  log.Error("Test Error");
+  log.Warning("Test Warning");
+  log.Info("Test Info");
+  log.ClearKeepMem();
+  std::vector<char> v2 = log.GetData();
   ASSERT_EQ(v1, v2);
 }
 
-TEST(message_log, cleaning2)
+TEST(MessageLog, cleaning2)
 {
-  message_log log;
-  log.error("Test Error");
-  std::vector<char> v1 = log.get_data();
-  log.clear();
-  log.error("Test Error");
-  std::vector<char> v2 = log.get_data();
-  log.clear_keep_mem();
-  log.error("Test Error");
-  std::vector<char> v3 = log.get_data();
+  MessageLog log;
+  log.Error("Test Error");
+  std::vector<char> v1 = log.GetData();
+  log.Clear();
+  log.Error("Test Error");
+  std::vector<char> v2 = log.GetData();
+  log.ClearKeepMem();
+  log.Error("Test Error");
+  std::vector<char> v3 = log.GetData();
   ASSERT_EQ(v1, v2);
   ASSERT_EQ(v1, v3);
 
 }
 
-TEST(message_log, ignore_message)
+TEST(MessageLog, ignore_message)
 {
-  message_log log;
-  log.ignore_messages(message_log::message_flag::m_warning | message_log::message_flag::m_info);
-  log.error("Test Error");
-  log.warning("Test Warning");
-  log.info("Test Info");
-  message_log log2;
-  log2.error("Test Error");
+  MessageLog log;
+  log.IgnoreMessages(MessageLog::EMessageFlag::f_warning | MessageLog::EMessageFlag::f_info);
+  log.Error("Test Error");
+  log.Warning("Test Warning");
+  log.Info("Test Info");
+  MessageLog log2;
+  log2.Error("Test Error");
 
-  ASSERT_EQ(log.get_data(), log2.get_data());
+  ASSERT_EQ(log.GetData(), log2.GetData());
 }

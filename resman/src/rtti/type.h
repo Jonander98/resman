@@ -3,36 +3,36 @@
 namespace RTTI
 {
   //TODO: redo this in a decent way
-  class type
+  class Type
   {
   public:
-    type(size_t val);
-    type(std::type_index index);
-    type(const type&) = default;
+    Type(size_t val);
+    Type(std::type_index index);
+    Type(const Type&) = default;
 
     bool operator==(size_t) const;
     bool operator==(std::type_index) const;
-    bool operator==(const type &) const;
-    type& operator=(const type&) = default;
+    bool operator==(const Type &) const;
+    Type& operator=(const Type&) = default;
 
-    std::type_index as_type_index() const;
+    std::type_index AsTypeIndex() const;
 
-    size_t get_hash() const;
+    size_t GetHash() const;
 
   private:
-    bool m_is_type_index;
-    std::type_index m_as_index;
-    size_t m_as_val;
+    bool m_isTypeIndex;
+    std::type_index m_asIndex;
+    size_t m_asVal;
   };
 }
 
 namespace std
 {
-  template<> struct hash<RTTI::type>
+  template<> struct hash<RTTI::Type>
   {
-    size_t operator()(RTTI::type const& t) const noexcept
+    size_t operator()(RTTI::Type const& t) const noexcept
     {
-      return std::hash<std::type_index>{}(t.as_type_index());
+      return std::hash<std::type_index>{}(t.AsTypeIndex());
     }
   };
 }

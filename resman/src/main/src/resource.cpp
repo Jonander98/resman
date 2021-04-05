@@ -6,30 +6,30 @@
 #include "main/resource.h"
 
 
-bool resource::is_loaded() const
+bool AResource::IsLoaded() const
 {
-  return m_is_loaded;
+  return m_isLoaded;
 }
 
-resource::id_type resource::get_id() const
+AResource::IdType AResource::GetId() const
 {
   return m_id;
 }
 
-void resource::unload()
+void AResource::VUnload()
 {
   //Nothing by default
 }
 
-void resource::internal_load(const filepath & fp)
+void AResource::InternalLoad(const Filepath & fp)
 {
-  load(fp);
-  m_is_loaded = true;
+  VLoad(fp);
+  m_isLoaded = true;
   m_path = fp;
 }
 
-void resource::internal_unload()
+void AResource::InternalUnload()
 {
-  unload();
-  m_is_loaded = false;
+  VUnload();
+  m_isLoaded = false;
 }

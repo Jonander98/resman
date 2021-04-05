@@ -5,78 +5,78 @@
 
 namespace WorkScheduling
 {
-  subroutine_base::subroutine_base()
+  ASubroutineBase::ASubroutineBase()
     : m_abort(false)
   {
   }
 
-  bool subroutine_base::is_active() const
+  bool ASubroutineBase::IsActive() const
   {
     return m_thread.joinable();
   }
 
-  void subroutine_base::start()
+  void ASubroutineBase::Start()
   {
     XASSERTMSG(!m_thread.joinable(), "[Subroutine] Calling start when already started");
     if (!m_thread.joinable())
     {
       m_abort = false;
-      m_thread = std::thread(&subroutine_base::thread_start_point, this);
+      m_thread = std::thread(&ASubroutineBase::VThreadStartPoint, this);
     }
   }
 
-  cleanup_subroutine::cleanup_subroutine(cleanup_data data, std::shared_mutex& mutex)
-    : subroutine(data, mutex)
+  CleanupSubroutine::CleanupSubroutine(CleanupData data, std::shared_mutex& mutex)
+    : ASubroutine(data, mutex)
   {
   }
-  void cleanup_subroutine::on_condition_met()
+  void CleanupSubroutine::VOnConditionMet()
   {
-    XMESSAGE("%s Performing Cleanup", get_debug_name().c_str());
-    auto& task_groups = m_data.m_task_groups;
-    auto task_group_idx = m_data.m_task_group_idx.load();
+    XMESSAGE("%s Performing Cleanup", GetDebugName().c_str());
+    auto& taskGroups = m_data.taskGroups;
+    auto taskGroupIdx = m_data.taskGroupIdx.load();
 
-    auto last_it = std::next(task_groups.begin(), task_group_idx);
-    size_t num_erased_elements = std::distance(task_groups.begin(), last_it);
-    task_groups.erase(task_groups.begin(), last_it);
-    m_data.m_task_group_idx -= num_erased_elements;
+    auto lastIt = std::next(taskGroups.begin(), taskGroupIdx);
+    size_t numErasedElements = std::distance(taskGroups.begin(), lastIt);
+    taskGroups.erase(taskGroups.begin(), lastIt);
+    m_data.taskGroupIdx -= numErasedElements;
   }
-  bool cleanup_subroutine::is_condition_met() const
+  bool CleanupSubroutine::VIsConditionMet() const
   {
     //Condition will be that we have x ammount of empty/finished task groups
     constexpr size_t MAX_FINISHED_TASK_GROUPS = 50;
 
-    return m_data.m_task_group_idx > MAX_FINISHED_TASK_GROUPS;
+    return m_data.taskGroupIdx > MAX_FINISHED_TASK_GROUPS;
   }
 
 
-  task_moving_subroutine::task_moving_subroutine(task_moving_data data, std::shared_mutex& mutex, std::mutex& input_mutex)
-    : subroutine(data, mutex)
-    , m_last_move_size(0)
-    , m_input_task_mutex(input_mutex)
+  TaskMovingSubroutine::TaskMovingSubroutine(TaskMovingData data, std::shared_mutex& mutex, std::mutex& inputMutex)
+    : ASubroutine(data, mutex)
+    , m_lastMoveSize(0)
+    , inputTaskMutex(inputMutex)
   {
   }
-  void task_moving_subroutine::on_condition_met()
+  void TaskMovingSubroutine::VOnConditionMet()
   {
-    std::scoped_lock<std::mutex> lock(m_input_task_mutex);
-    m_last_move_size = m_data.m_input.size();
+    std::scoped_lock<std::mutex> lock(inputTaskMutex);
+    m_lastMoveSize = m_data.m_input.size();
     std::move(m_data.m_input.begin(), m_data.m_input.end(), std::back_inserter(m_data.m_output));
     m_data.m_input.clear();
   }
 
-  void task_moving_subroutine::post_condition_met()
+  void TaskMovingSubroutine::VPostConditionMet()
   {
-    m_data.m_parent.on_task_moved_to_shared_pool(m_last_move_size);
+    m_data.m_parent.OnTaskMovedToSharedPool(m_lastMoveSize);
   }
 
-  bool task_moving_subroutine::is_condition_met() const
+  bool TaskMovingSubroutine::VIsConditionMet() const
   {
-    constexpr size_t MAX_INPUT_SIZE = 10;
-    constexpr size_t MIN_OUTPUT_SIZE = 5;
+    constexpr size_t c_maxInputSize = 10;
+    constexpr size_t c_minOutputSize = 5;
 
-    const size_t num_available_tasks = m_data.m_input.size();
-    const bool many_input = num_available_tasks > MAX_INPUT_SIZE;
-    const bool low_output_task = (m_data.m_output.size() - m_data.m_task_group_idx) < MIN_OUTPUT_SIZE;
-    const bool should_move = many_input || (low_output_task && num_available_tasks > 0);
-    return should_move;
+    const size_t numAvailableTasks = m_data.m_input.size();
+    const bool manyInput = numAvailableTasks > c_maxInputSize;
+    const bool lowOutputTask = (m_data.m_output.size() - m_data.taskGroupIdx) < c_minOutputSize;
+    const bool shouldMove = manyInput || (lowOutputTask && numAvailableTasks > 0);
+    return shouldMove;
   }
 }

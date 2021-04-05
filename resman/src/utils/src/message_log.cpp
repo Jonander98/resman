@@ -5,76 +5,76 @@
 #include "pch.h"
 #include "utils/message_log.h"
 
-void message_log::error(const str_t & st)
+void MessageLog::Error(const str_t & st)
 {
-  if (m_ignored_messages & message_flag::m_error)
+  if (m_ignoredMessages & EMessageFlag::f_error)
     return;
   const char err[] = "Error: ";
-  push_message(err + st);
+  PushMessage(err + st);
 }
 
-void message_log::warning(const str_t & st)
+void MessageLog::Warning(const str_t & st)
 {
-  if (m_ignored_messages & message_flag::m_warning)
+  if (m_ignoredMessages & EMessageFlag::f_warning)
     return;
   const char war[] = "Warning: ";
-  push_message(war + st);
+  PushMessage(war + st);
 }
 
-void message_log::info(const str_t & st)
+void MessageLog::Info(const str_t & st)
 {
-  if (m_ignored_messages & message_flag::m_info)
+  if (m_ignoredMessages & EMessageFlag::f_info)
     return;
   const char info[] = "Info: ";
-  push_message(info + st);
+  PushMessage(info + st);
 }
 
-void message_log::ignore_messages(message_flags flags)
+void MessageLog::IgnoreMessages(MessageFlags flags)
 {
-  m_ignored_messages = flags;
+  m_ignoredMessages = flags;
 }
 
-void message_log::clear()
+void MessageLog::Clear()
 {
   m_data.clear();
-  clear_keep_mem();
+  ClearKeepMem();
 }
 
-void message_log::clear_keep_mem()
+void MessageLog::ClearKeepMem()
 {
   //Just ignore the already stored data
-  m_log_offset = 0;
+  m_logOffset = 0;
 }
 
-std::vector<char> message_log::get_data() const
+std::vector<char> MessageLog::GetData() const
 {
-  std::vector<char> tmp(m_data.begin(), std::next(m_data.begin(), m_log_offset));
+  std::vector<char> tmp(m_data.begin(), std::next(m_data.begin(), m_logOffset));
   tmp.push_back(0);
   return tmp;
 }
 
-void message_log::print() const
+void MessageLog::Print() const
 {
-  std::cout << get_data().data() << std::endl;
+  std::cout << GetData().data() << std::endl;
 }
 
-bool message_log::is_empty() const
+bool MessageLog::IsEmpty() const
 {
   return m_data.empty();
 }
 
-char * message_log::get_space(size_t size)
+char * MessageLog::GetSpace(size_t size)
 {
-  if (m_data.size() - m_log_offset < size)
+  if (m_data.size() - m_logOffset < size)
     m_data.resize(m_data.size() + size);
-  char * tmp = m_data.data() + m_log_offset;
-  m_log_offset += size;
+  char * tmp = m_data.data() + m_logOffset;
+  m_logOffset += size;
   return tmp;
 }
 
-void message_log::push_message(const str_t & st)
+void MessageLog::PushMessage(const str_t & st)
 {
-  char * ptr = get_space(st.size()+1);
+  char * ptr = GetSpace(st.size()+1);
   std::memcpy(ptr, st.c_str(), st.size());
   ptr[st.size()] = '\n';
 }

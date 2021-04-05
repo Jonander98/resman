@@ -8,11 +8,11 @@
 #include "main/resource.h"
 
 
-class texture : public resource
+class Texture : public AResource
 {
 private:
-  bool load(const filepath &)override;
-  void unload()override;
+  bool VLoad(const Filepath &)override;
+  void VUnload()override;
 
   i32 foo;
   std::vector<u32> bar;
@@ -23,7 +23,7 @@ private:
 * Example of specifying the hash function for a resource
 */
 template <>
-struct resource_hash<texture>
+struct ResourceHash<Texture>
 {
   size_t operator() (const str_t & st)
   {

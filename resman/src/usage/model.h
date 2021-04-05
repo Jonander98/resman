@@ -8,12 +8,12 @@
 #include "main/resource.h"
 
 
-class model : public resource
+class Model : public AResource
 {
 private:
-  bool load(const filepath &)override final;
-  void unload()override;
-  i32 foo;
-  std::vector<u32> bar;
-  std::array<i32, 80> mar;
+  bool VLoad(const Filepath &)override final;
+  void VUnload()override;
+  i32 m_foo;
+  std::vector<u32> m_bar;
+  std::array<i32, 80> m_mar;
 };

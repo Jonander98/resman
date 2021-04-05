@@ -4,99 +4,103 @@
  */
 #pragma region resource
 template<typename resource_type>
-inline resource::id_type resource::compute_id(const str_t & st)
+inline AResource::IdType AResource::ComputeId(const str_t & st)
 {
   //NOTE: this hash function does not guarantee uniqueness, but it is incredibly rare to have collisions
-  return resource_hash<resource_type>{}(st);
+  return ResourceHash<resource_type>{}(st);
 }
 #pragma endregion
 #pragma region resource_ptr
 template<typename resource_type>
-inline resource_ptr<resource_type>::resource_ptr(const resource_ptr & rhs)
-  : m_ptr(rhs.m_ptr), m_ref_count(rhs.m_ref_count)
+inline ResourcePtr<resource_type>::ResourcePtr(const ResourcePtr & rhs)
+  : m_ptr(rhs.m_ptr), m_refCount(rhs.m_refCount)
 {
   //One reference more
-  if(m_ptr)
-    (*m_ref_count)++;
+  if (m_ptr)
+  {
+    (*m_refCount)++;
+  }
 }
 
 template<typename resource_type>
-inline resource_ptr<resource_type>::resource_ptr()
-  : resource_ptr(nullptr)
+inline ResourcePtr<resource_type>::ResourcePtr()
+  : ResourcePtr(nullptr)
 {}
 
 template<typename resource_type>
-inline resource_ptr<resource_type>::~resource_ptr()
+inline ResourcePtr<resource_type>::~ResourcePtr()
 {
-  remove_ownership();
+  RemoveOwnership();
 }
 
 template<typename resource_type>
-inline resource_ptr<resource_type>::resource_ptr(resource_type * ptr)
+inline ResourcePtr<resource_type>::ResourcePtr(resource_type * ptr)
   : m_ptr(ptr)
 {
   if (ptr)
   {//Start counting references
-    m_ref_count = new std::atomic<i32>(0);
-    (*m_ref_count)++;
+    m_refCount = new std::atomic<i32>(0);
+    (*m_refCount)++;
   }
 }
 
 
 template<typename resource_type>
-inline resource_type * resource_ptr<resource_type>::get()
+inline resource_type * ResourcePtr<resource_type>::Get()
 {
   return m_ptr;
 }
 
 template<typename resource_type>
-inline resource_type * resource_ptr<resource_type>::operator->() const
+inline resource_type * ResourcePtr<resource_type>::operator->() const
 {
   return m_ptr;
 }
 
 template<typename resource_type>
-inline resource_ptr<resource_type> & resource_ptr<resource_type>::operator=(const resource_ptr & rhs)
+inline ResourcePtr<resource_type> & ResourcePtr<resource_type>::operator=(const ResourcePtr & rhs)
 {
-  remove_ownership();
+  RemoveOwnership();
   //Copy both the pointer and the reference counter
   m_ptr = rhs.m_ptr;
-  m_ref_count = rhs.m_ref_count;
+  m_refCount = rhs.m_refCount;
   if (m_ptr)
-    (*m_ref_count)++;
+  {
+    (*m_refCount)++;
+  }
   return *this;
 }
 
 template<typename resource_type>
-inline resource_ptr<resource_type>::operator resource_type*()
+inline ResourcePtr<resource_type>::operator resource_type*()
 {
   return m_ptr;
 }
 
 template<typename resource_type>
-inline i32 resource_ptr<resource_type>::get_reference_count() const
+inline i32 ResourcePtr<resource_type>::GetReferenceCount() const
 {
   //We are removing one for the user as the resource manager is keeping one
-  return m_ptr ? *m_ref_count - 1 : 0;
+  return m_ptr ? *m_refCount - 1 : 0;
 }
 
 template<typename resource_type>
-inline void resource_ptr<resource_type>::remove_ownership()
+inline void ResourcePtr<resource_type>::RemoveOwnership()
 {
   if (m_ptr == nullptr)
     return;
   //Just remove a reference
-  (*m_ref_count)--;
-  if (*m_ref_count <= 0)
+  (*m_refCount)--;
+  if (*m_refCount <= 0)
   {
-    delete m_ref_count;
+    delete m_refCount;
     //The resource memory is not owned by the pointer
     //delete m_ptr;
   }
 }
 
 template<typename resource_type>
-inline bool resource_ptr<resource_type>::is_valid()const
+inline bool ResourcePtr<resource_type>::IsValid()const
 {
   return m_ptr != nullptr;
 }

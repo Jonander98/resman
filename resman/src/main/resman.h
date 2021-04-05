@@ -9,28 +9,28 @@
 #include "utils/message_log.h"
 #include "work_group.h"
 
-class resman
+class Resman
 {
 public://Public types
-  struct config
+  struct Config
   {
     //Maximum number of threads allowed
-    u8 max_threads{ 4 };
+    u8 maxThreads{ 4 };
     /*
     * Minimum number of resources that have to be in the queue of a thread to create a new one
     * always respecting the maximum
     */
-    u8 min_resources_to_fork{ 3 };
+    u8 minResourcesToFork{ 3 };
   };
 private://Private types
   template <typename resource_type>
-  using resource_container = std::unordered_map<resource::id_type, resource_ptr<resource_type>>;
+  using resource_container = std::unordered_map<AResource::IdType, ResourcePtr<resource_type>>;
 public:
   //Makes sure all the resources get unloaded
-  ~resman();
-  resman(config = config());
-  resman(const resman &) = delete;
-  resman & operator=(const resman &) = delete;
+  ~Resman();
+  Resman(Config = Config());
+  Resman(const Resman &) = delete;
+  Resman & operator=(const Resman &) = delete;
 public:
   /*
   * If the load for the resource has been requested, a valid pointer to the resource is given.
@@ -38,121 +38,121 @@ public:
   * If the id is not found, a non valid resource_ptr is returned
   */
   template <typename resource_type>
-  resource_ptr<resource_type> get(const str_t &);  
+  ResourcePtr<resource_type> Get(const str_t &);  
   /*
   * Returns a vector with a pointer to all the resources of the given
   * type that have been loaded
   */
   template <typename resource_type>
-  std::vector<resource_ptr<resource_type>> get_all_t();
+  std::vector<ResourcePtr<resource_type>> GetAllOfType();
   /*
   * Loads a resource of the given type from the given path
   */
   template <typename resource_type>
-  void load(const filepath &);
+  void Load(const Filepath &);
   /*
   * Loads a resource of the given type from the given path asyncronously
   */
   template <typename resource_type>
-  void load_async(const filepath &);
+  void LoadAsync(const Filepath &);
   /*
   * Unloads the specified resource
   */
   template<typename resource_type>
-  void unload(const str_t &);
+  void Unload(const str_t &);
   /*
   * Unloads all the resources of the specified type
   */
   template<typename resource_type>
-  void unload_all_t();
+  void UnloadAllOfType();
   /*
   * Unloads all the resources
   */
-  void unload_all();
+  void UnloadAll();
 public://log and config
   /*
   * Sets the config of the resource manager
   */
-  void set_config(config c);
+  void SetConfig(Config c);
   /*
   * Sets the log used to inform the user of possible problems
   */
-  void set_log(const message_log &);
+  void SetLog(const MessageLog &);
   /*
   * Returns the log in its current status
   */
-  const message_log & get_log()const;
+  const MessageLog & GetLog()const;
   /*
   * Prints information about the current resource manager state to the log
   */
-  const message_log & get_resource_manager_status();
+  const MessageLog & GetResourceManagerStatus();
   /*
   * Saves the current status of the resource manager to a file.
-  * only_ever_used: if true, only resources that have been used at some point will be saved
+  * onlyEverUsed: if true, only resources that have been used at some point will be saved
   */
-  void save_to_file(const filepath &, bool only_ever_used = false)const;
+  void SaveToFile(const Filepath &, bool onlyEverUsed = false)const;
   /*
   * Loads a resourcemanager status from file.
   * The types that were not registered will get ignored
   */
-  void from_file(const filepath&);
+  void FromFile(const Filepath&);
   /*
   * Loads a resourcemanager status from file.
   * The template parameters are the types that want to be loaded from the file. If a type is not provided
   * and it is found on the file, it is ignored
   */
   template<typename ...resource_types>
-  void from_file_restricted_type(const filepath&);
+  void FromFileRestrictedTypes(const Filepath&);
 public:
   //Registers a resource type
   template <typename resource_type>
-  void register_resource();
+  void RegisterResource();
   //Registers a group of resource types
   template <typename resource_type, typename resource_type2, typename ...args>
-  void register_resource();
+  void RegisterResource();
   //Checks if a resource is registered
   template <typename resource_type>
-  bool is_registered();
+  bool IsRegistered();
 private:
   /*
   * Returns a pointer to the corresponding resource container.
   * It returns null if the resource was not previously registered
   */
   template <typename resource_type>
-  resource_container<resource_type>* get_resource_container();
+  resource_container<resource_type>* GetResourceContainer();
   //Performs all the static checks for all the structural requirements a resource must meet
   template <typename resource_type>
-  constexpr void check_resource_type();
+  constexpr void CheckResourceType();
   /*
   * Used for resource loading from file. It loads the resource if the id
   * matches with any of the types. Otherwise, nothing happens
   */
   template <typename resource_type, typename resource_type2, typename ...args>
-  void load_if_same_type(RTTI::type id, const filepath& fp);
+  void LoadIfSameType(RTTI::Type id, const Filepath& fp);
   template<typename resource_type>
-  void load_if_same_type(RTTI::type id, const filepath& fp);
+  void LoadIfSameType(RTTI::Type id, const Filepath& fp);
   //Internal helper version
-  bool is_registered(RTTI::type typeId);
+  bool IsRegistered(RTTI::Type typeId);
 
   /*
   * Loads a resource of the given type from the given path.
   * Must specify if it should be asyncronous or not
   */
   template <typename resource_type>
-  void internal_load(const filepath &, bool is_async);
+  void InternalLoad(const Filepath &, bool is_async);
 
   //Helper to reuse file loading code
-  void for_each_resource_in_file(const filepath& fp, std::function<void(const filepath&, size_t)> action) const;
+  void ForEachResourceInFile(const Filepath& fp, std::function<void(const Filepath&, size_t)> action) const;
 
 private:
   //A map from type id to the corresponding resource container
-  std::unordered_map<RTTI::type, void*> m_resources;
+  std::unordered_map<RTTI::Type, void*> m_resources;
   //The log for the messages
-  mutable message_log m_log;
+  mutable MessageLog m_log;
   //The work group that will load asyncronously
-  WorkScheduling::work_group m_work_group;
+  WorkScheduling::WorkGroup m_workGroup;
   //The config of the resource manager(related with threads)
-  config m_config;
+  Config m_config;
 };
 
 #include "resman.inl"

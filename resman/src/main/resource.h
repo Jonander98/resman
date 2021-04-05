@@ -12,53 +12,53 @@
 * It can be specialized for a concrete resource
 */
 template <typename resource_type>
-struct resource_hash : public std::hash<str_t> {};
+struct ResourceHash : public std::hash<str_t> {};
 /*
 * Base for all the resources used by the resource manager
 * All the resources must derive from this an implement a load function
 */
-class resource
+class AResource
 {
 private://types
-  friend class resman;
-  using id_type = size_t;
+  friend class Resman;
+  using IdType = size_t;
 public://Static interface
   template <typename resource_type>
-  static id_type compute_id(const str_t &);
+  static IdType ComputeId(const str_t &);
 protected:
-  virtual ~resource() = default;
-  resource() = default;
+  virtual ~AResource() = default;
+  AResource() = default;
   //Only allow moving, not copying to avoid duplicating data
-  resource(const resource &) = delete;
-  resource(resource &&) = default;
+  AResource(const AResource &) = delete;
+  AResource(AResource &&) = default;
   //Cannot be assigned to avoid that the user duplicates data
-  resource & operator=(const resource &) = delete;
-  resource & operator=(resource &&) = default;
+  AResource & operator=(const AResource &) = delete;
+  AResource & operator=(AResource &&) = default;
 public:
   //True if the resource has been loaded
-  bool is_loaded()const;
+  bool IsLoaded()const;
   //The id of the resource
-  id_type get_id()const;
+  IdType GetId()const;
 protected:
 
   //Override with the load of the resource
-  virtual bool load(const filepath&) = 0;
+  virtual bool VLoad(const Filepath&) = 0;
   //Option to control when a resource is unloaded apart from the destructor
-  virtual void unload();
+  virtual void VUnload();
 private:
   //Wrapper around load to enable performing actions related with loading
-  void internal_load(const filepath&);
+  void InternalLoad(const Filepath&);
   //Wrapper around unload to enable performing actions related with unloading
-  void internal_unload();
+  void InternalUnload();
 private:
   //If the resource is loaded or not
-  bool m_is_loaded{ false };
+  bool m_isLoaded{ false };
   //If the resource has been used at some point
-  bool m_any_use{ false };
+  bool m_anyUse{ false };
   //Identification number for the resource
-  id_type m_id;
+  IdType m_id;
   //The path from which the resource has been loaded
-  filepath m_path;
+  Filepath m_path;
 };
 
 
@@ -68,41 +68,41 @@ private:
 *  when the dealocation of the resource happens
 */
 template <typename resource_type>
-class resource_ptr
+class ResourcePtr
 {
-  static_assert(std::is_base_of<resource, resource_type>::value,
+  static_assert(std::is_base_of<AResource, resource_type>::value,
     "Every resource must derive from the resource class");
 
   //Only the resource manager can create valid versions of these
-  friend class resman;
-  explicit resource_ptr(resource_type *);
+  friend class Resman;
+  explicit ResourcePtr(resource_type *);
 public:
   //Allow for default contruction
-  resource_ptr();
+  ResourcePtr();
   //Reduces the count of active references
-  ~resource_ptr();
+  ~ResourcePtr();
   //Create a new reference to the resource
-  resource_ptr(const resource_ptr &);
+  ResourcePtr(const ResourcePtr &);
   //Returns the raw pointer
-  resource_type * get();
+  resource_type * Get();
   //Applies the arrow operator on the raw pointer
   resource_type * operator->()const;
   //Assignment operator between two resource ptr
-  resource_ptr & operator=(const resource_ptr & rhs);
+  ResourcePtr & operator=(const ResourcePtr & rhs);
   //Allows using the resource_ptr as a raw pointer
   operator resource_type *();
 public:
   //Returns true if the pointer is valid
-  bool is_valid()const;
+  bool IsValid()const;
   //Returns the number of times the pointer is referenced
-  i32 get_reference_count()const;
+  i32 GetReferenceCount()const;
 
 private:
   //Removes the ownership from its pointed resource
-  void remove_ownership();
+  void RemoveOwnership();
 private:
   //Number of active references to the pointed value
-  std::atomic<i32> * m_ref_count;    
+  std::atomic<i32> * m_refCount;    
   //A pointer to the data
   resource_type * m_ptr;
 };

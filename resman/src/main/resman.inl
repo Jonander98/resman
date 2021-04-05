@@ -4,46 +4,46 @@
  */
 
 template<typename resource_type>
-inline resource_ptr<resource_type> resman::get(const str_t & st)
+inline ResourcePtr<resource_type> Resman::Get(const str_t & st)
 {
-  resource_ptr<resource_type> ret_ptr;//null
+  ResourcePtr<resource_type> retPtr;//null
 
-  auto ct = get_resource_container<resource_type>();
+  auto ct = GetResourceContainer<resource_type>();
   if (ct == nullptr)
   {
     //The resource is not registered
-    m_log.warning("get: The resource is not registered");
-    return ret_ptr;
+    m_log.Warning("get: The resource is not registered");
+    return retPtr;
   }
-  resource::id_type id = resource::compute_id<resource_type>(st);
+  AResource::IdType id = AResource::ComputeId<resource_type>(st);
   auto it = ct->find(id);
   if (it == ct->end())
   {
     //Resource not found
     //m_log.warning("get: No load function has been called with the given parameters");
-    return ret_ptr;
+    return retPtr;
   }
   //Found
-  it->second->m_any_use = true;
+  it->second->m_anyUse = true;
   return it->second;
 }
 
 template<typename resource_type>
-inline std::vector<resource_ptr<resource_type>> resman::get_all_t()
+inline std::vector<ResourcePtr<resource_type>> Resman::GetAllOfType()
 {
-  auto cont_ptr = get_resource_container<resource_type>();
-  if (cont_ptr == nullptr)
+  auto contPtr = GetResourceContainer<resource_type>();
+  if (contPtr == nullptr)
   {//Resource not registered
-    m_log.warning("get_all: The resource is not registered");
+    m_log.Warning("get_all: The resource is not registered");
     return {};
   }
   //Create the container
-  std::vector<resource_ptr<resource_type>> ret;
-  ret.reserve(cont_ptr->size());
+  std::vector<ResourcePtr<resource_type>> ret;
+  ret.reserve(contPtr->size());
   //Fill it with all the resources
-  for (auto& pair : *cont_ptr)
+  for (auto& pair : *contPtr)
   {
-    pair.second->m_any_use = true;
+    pair.second->m_anyUse = true;
     ret.push_back(pair.second);
   }
 
@@ -52,125 +52,127 @@ inline std::vector<resource_ptr<resource_type>> resman::get_all_t()
 
 
 template <typename resource_type, typename resource_type2, typename ...args>
-void resman::load_if_same_type(RTTI::type id, const filepath& fp)
+void Resman::LoadIfSameType(RTTI::Type id, const Filepath& fp)
 {
-  if (RTTI::type(typeid(resource_type)) == id)
+  if (RTTI::Type(typeid(resource_type)) == id)
   {
     //Add it
-    load<resource_type>(fp);
+    Load<resource_type>(fp);
   }
   else
   {
-    load_if_same_type<resource_type2, args...>(id, fp);
+    LoadIfSameType<resource_type2, args...>(id, fp);
   }
 
 }
 template <typename resource_type>
-void resman::load_if_same_type(RTTI::type id, const filepath& fp)
+void Resman::LoadIfSameType(RTTI::Type id, const Filepath& fp)
 {
-  if (RTTI::type(typeid(resource_type)) == id)
+  if (RTTI::Type(typeid(resource_type)) == id)
   {
     //Add it
-    load<resource_type>(fp);
+    Load<resource_type>(fp);
   }
 }
 
 template<typename ...resource_types>
-void resman::from_file_restricted_type(const filepath& list_path)
+void Resman::FromFileRestrictedTypes(const Filepath& listPath)
 {
   static_assert(sizeof...(resource_types) != 0, "Cant load from file with restricted types if no types were given");
 
-  for_each_resource_in_file(list_path, [this](const filepath & fp, size_t id)
+  ForEachResourceInFile(listPath, [this](const Filepath & fp, size_t id)
   {
-    load_if_same_type<resource_types...>(id, fp);
+    LoadIfSameType<resource_types...>(id, fp);
   });
 }
 
 
 template<typename resource_type>
-inline void resman::load(const filepath & fp)
+inline void Resman::Load(const Filepath & fp)
 {
-  internal_load<resource_type>(fp, false);
+  InternalLoad<resource_type>(fp, false);
 }
 
 template<typename resource_type>
-inline void resman::load_async(const filepath & fp)
+inline void Resman::LoadAsync(const Filepath & fp)
 {
-  internal_load<resource_type>(fp, true);
+  InternalLoad<resource_type>(fp, true);
 }
 
 template<typename resource_type>
-inline void resman::unload(const str_t & st)
+inline void Resman::Unload(const str_t & st)
 {
-  auto ct = get_resource_container<resource_type>();
+  auto ct = GetResourceContainer<resource_type>();
   if (ct == nullptr)
   {
-    m_log.info("unload: The resource is not registered");
+    m_log.Info("unload: The resource is not registered");
     return;
   }
-  auto it = ct->find(resource::compute_id<resource_type>(st));
+  auto it = ct->find(AResource::ComputeId<resource_type>(st));
   if (it != ct->end())
   {
     //Tell the resource to unload. Always syncronous
-    it->second->internal_unload();
-    if (it->second.get_reference_count() > 0)
+    it->second->InternalUnload();
+    if (it->second.GetReferenceCount() > 0)
     {
-      m_log.info("unload: The resource was still in use");
+      m_log.Info("unload: The resource was still in use");
     }
     //Deallocate the memory
-    delete it->second.get();
+    delete it->second.Get();
     ct->erase(it);
   }
 }
 
 template<typename resource_type>
-inline void resman::unload_all_t()
+inline void Resman::UnloadAllOfType()
 {
-  auto ct = get_resource_container<resource_type>();
+  auto ct = GetResourceContainer<resource_type>();
   if (ct == nullptr)
   {
-    m_log.info("unload_all_t: The resource is not registered");
+    m_log.Info("unload_all_t: The resource is not registered");
     return;
   }
   for (auto & pair : *ct)
   {
     //Unload each of the resources of the given type
-    pair.second->internal_unload();
-    if (pair.second.get_reference_count() > 0)
-      m_log.info("unload: The resource was still in use");
-    delete pair.second.get();
+    pair.second->InternalUnload();
+    if (pair.second.GetReferenceCount() > 0)
+    {
+      m_log.Info("unload: The resource was still in use");
+    }
+    delete pair.second.Get();
   }
   ct->clear();
 }
 
 template<typename resource_type>
-inline void resman::register_resource()
+inline void Resman::RegisterResource()
 {
-  check_resource_type<resource_type>();
-  RTTI::type id = RTTI::type(typeid(resource_type));
+  CheckResourceType<resource_type>();
+  RTTI::Type id = RTTI::Type(typeid(resource_type));
   if (m_resources.find(id) != m_resources.end())
   {
     //Resource already registered
-    m_log.info("register_resource: The resource is already registered");
+    m_log.Info("register_resource: The resource is already registered");
     return;
   }
   m_resources[id] = new resource_container<resource_type>;
 }
 template <typename resource_type, typename resource_type2, typename ...args>
-inline void resman::register_resource()
+inline void Resman::RegisterResource()
 {
   //Register recursively
-  register_resource<resource_type>();
-  register_resource<resource_type2, args...>();
+  RegisterResource<resource_type>();
+  RegisterResource<resource_type2, args...>();
 }
 template<typename resource_type>
-inline bool resman::is_registered()
+inline bool Resman::IsRegistered()
 {
-  return get_resource_container<resource_type>() != nullptr;
+  return GetResourceContainer<resource_type>() != nullptr;
 }
 
 template<typename resource_type>
-inline resman::resource_container<resource_type>* resman::get_resource_container()
+inline Resman::resource_container<resource_type>* Resman::GetResourceContainer()
 {
   std::type_index id = typeid(resource_type);
   auto it = m_resources.find(id);
@@ -181,48 +183,48 @@ inline resman::resource_container<resource_type>* resman::get_resource_container
 }
 
 template<typename resource_type>
-inline constexpr void resman::check_resource_type()
+inline constexpr void Resman::CheckResourceType()
 {
-  static_assert(std::is_base_of<resource, resource_type>::value,
+  static_assert(std::is_base_of<AResource, resource_type>::value,
     "Every resource must derive from the resource class");
   static_assert(std::is_default_constructible<resource_type>::value,
     "Every resource must have a default constructor");
 }
 
 template<typename resource_type>
-inline void resman::internal_load(const filepath & fp, bool is_async)
+inline void Resman::InternalLoad(const Filepath & fp, bool is_async)
 {
-  auto * cont = get_resource_container<resource_type>();
+  auto * cont = GetResourceContainer<resource_type>();
   if (cont == nullptr)
   {//Resource not registered
-    m_log.warning("load: The resource is not registered");
+    m_log.Warning("load: The resource is not registered");
     return;
   }
-  if (get<resource_type>(fp.get_full_name()) != nullptr)
+  if (Get<resource_type>(fp.GetFullName()) != nullptr)
   {//Resource already loaded
-    m_log.info("load: The resource is already loaded");
+    m_log.Info("load: The resource is already loaded");
     return;
   }
 
   //Create an storage for the resource
-  resource::id_type res_id = resource::compute_id<resource_type>(fp.get_full_name());
-  resource_ptr<resource_type>& res_ptr = cont->emplace(res_id, resource_ptr<resource_type>()).first->second;
+  AResource::IdType resId = AResource::ComputeId<resource_type>(fp.GetFullName());
+  ResourcePtr<resource_type>& resPtr = cont->emplace(resId, ResourcePtr<resource_type>()).first->second;
 
   //Allocate the resource
-  res_ptr = resource_ptr<resource_type>(new resource_type);
+  resPtr = ResourcePtr<resource_type>(new resource_type);
 
   //Set the id of the resource
-  res_ptr->m_id = res_id;
+  resPtr->m_id = resId;
   //Start the load
   if (is_async)
   {
     //Create the task
-    WorkScheduling::task t = std::bind(&resource_type::internal_load, res_ptr.get(), fp);
+    WorkScheduling::Task t = std::bind(&resource_type::InternalLoad, resPtr.Get(), fp);
 
-    m_work_group.add_task(t);
+    m_workGroup.AddTask(t);
   }
   else
   {
-    res_ptr->internal_load(fp);
+    resPtr->InternalLoad(fp);
   }
 }

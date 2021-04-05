@@ -5,61 +5,61 @@
 namespace WorkScheduling
 {
   template<typename Data_T, typename Mutex_T, typename Lock_T>
-  inline subroutine<Data_T, Mutex_T, Lock_T>::~subroutine()
+  inline ASubroutine<Data_T, Mutex_T, Lock_T>::~ASubroutine()
   {
     if (m_thread.joinable())
     {
-      stop();
+      VStop();
     }
   }
   template<typename Data_T, typename Mutex_T, typename Lock_T>
-  inline subroutine<Data_T, Mutex_T, Lock_T>::subroutine(Data_T data, Mutex_T& mutex)
+  inline ASubroutine<Data_T, Mutex_T, Lock_T>::ASubroutine(Data_T data, Mutex_T& mutex)
     : m_data(data)
     , m_mutex(mutex)
   {
   }
   template<typename Data_T, typename Mutex_T, typename Lock_T>
-  inline void subroutine<Data_T, Mutex_T, Lock_T>::stop()
+  inline void ASubroutine<Data_T, Mutex_T, Lock_T>::VStop()
   {
     XASSERTMSG(m_thread.joinable(), "[Subroutine] Calling stop when not started");
     if (m_thread.joinable())
     {
-      XMESSAGE("%s Closing...", get_debug_name().c_str());
+      XMESSAGE("%s Closing...", GetDebugName().c_str());
       m_abort = true;
-      m_check_condition.notify_one();
+      m_checkCondition.notify_one();
       m_thread.join();
     }
   }
   template<typename Data_T, typename Mutex_T, typename Lock_T>
-  inline void subroutine<Data_T, Mutex_T, Lock_T>::notify_if_condition_met()
+  inline void ASubroutine<Data_T, Mutex_T, Lock_T>::VNotifyIfConditionMet()
   {
-    if (is_condition_met())
+    if (VIsConditionMet())
     {
-      m_check_condition.notify_one();
+      m_checkCondition.notify_one();
     }
   }
 
   template<typename Data_T, typename Mutex_T, typename Lock_T>
-  inline void subroutine<Data_T, Mutex_T, Lock_T>::thread_start_point()
+  inline void ASubroutine<Data_T, Mutex_T, Lock_T>::VThreadStartPoint()
   {
     while (!m_abort)
     {
       {
         Lock_T lock(m_mutex);
-        XMESSAGE("%s StartingToWait", get_debug_name().c_str());
-        m_check_condition.wait(lock, [this]() -> bool
+        XMESSAGE("%s StartingToWait", GetDebugName().c_str());
+        m_checkCondition.wait(lock, [this]() -> bool
         {
-          return m_abort || is_condition_met();
+          return m_abort || VIsConditionMet();
         });
-        XMESSAGE("%s FinishedWaiting", get_debug_name().c_str());
+        XMESSAGE("%s FinishedWaiting", GetDebugName().c_str());
         if (m_abort)
         {
           //Don't bother performing any other task
           break;
         }
-        on_condition_met();
+        VOnConditionMet();
       }
-      post_condition_met();
+      VPostConditionMet();
     }
   }
 }

@@ -6,10 +6,10 @@
 #include "usage/object.h"
 #include "main/resman.h"
 
-void object::foo()
+void Object::Foo()
 {
-  resman r;
+  Resman r;
   //r.load();
-  m_tex = r.get<texture>("mario.png");
-  m_tex->get_id();
+  m_tex = r.Get<Texture>("mario.png");
+  m_tex->GetId();
 }

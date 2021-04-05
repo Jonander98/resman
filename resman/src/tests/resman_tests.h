@@ -14,17 +14,17 @@ class resman_fixture : public ::testing::Test
 {
 protected:
   template <i64 delay, typename chronot_t = std::chrono::seconds>
-  class dummy : public resource
+  class dummy : public AResource
   {
   private:
-    bool load(const filepath & path)override
+    bool VLoad(const Filepath & path)override
     {
       (void)path;
       std::this_thread::sleep_for(chronot_t(delay));
       i32 i = 0;
       for (i32 & el : ordered)
         el = i++;
-      XMESSAGE("Loaded Dummy with path: \"%s\"", path.get_name().c_str());
+      XMESSAGE("Loaded Dummy with path: \"%s\"", path.GetName().c_str());
       return true;
     }
     std::array<i32, 80> ordered;
@@ -36,12 +36,12 @@ protected:
 protected:
   //At the beginning
   void SetUp()override { 
-    rm.register_resource<texture, model, load_1s, load_2s, load_0_5s, load_1ms>();
+    rm.RegisterResource<Texture, Model, load_1s, load_2s, load_0_5s, load_1ms>();
   }
   //At the end
   void TearDown()override {
   }
-  resman rm;
+  Resman rm;
 
 };
 
